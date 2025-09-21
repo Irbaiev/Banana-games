@@ -39,6 +39,54 @@
                 }
             }
 
+            // WebSocket мок для офлайн режима
+            (function () {
+                const listeners = (ws) => ({
+                    open: () => ws.onopen && ws.onopen({}),
+                    tick() {
+                        if (ws.__closed) return;
+                        // Эмулируем реальный краш-раунд
+                        const payload = {
+                            type: 'TICK',
+                            serverTime: Date.now(),
+                            state: ws.__phase || 'ROUND_RUNNING',
+                            multiplier: +(1 + Math.random() * 10).toFixed(2)
+                        };
+                        ws.onmessage && ws.onmessage({ data: JSON.stringify(payload) });
+                        setTimeout(() => listeners(ws).tick(), 1000);
+                    },
+                    close: () => ws.onclose && ws.onclose({})
+                });
+
+                class MockWS {
+                    constructor(url) {
+                        this.url = url;
+                        this.readyState = 0; // CONNECTING
+                        this.__closed = false;
+                        setTimeout(() => { 
+                            this.readyState = 1; 
+                            listeners(this).open(); 
+                            listeners(this).tick(); 
+                        }, 50);
+                    }
+                    send(_) { /* можно логировать */ }
+                    close() { 
+                        this.__closed = true; 
+                        this.readyState = 3; 
+                        listeners(this).close(); 
+                    }
+                    addEventListener() {} 
+                    removeEventListener() {}
+                }
+
+                // Перекрываем WebSocket для офлайн режима
+                window.__ENABLE_OFFLINE_WS__ = true;
+                if (window.__ENABLE_OFFLINE_WS__) {
+                    window.WebSocket = MockWS;
+                    console.log('🎮 WebSocket мок активирован для офлайн режима');
+                }
+            })();
+
             // temporarily disabled until we figure out, why it doesn't work
             if (browserSupportsAllFeatures()) {
                 loadScript("../static.casino.guru/res/336cfee71c51541024c06426c59e26a1a/build/es6/vendor.es6.js")

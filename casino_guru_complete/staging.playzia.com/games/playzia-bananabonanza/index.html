@@ -25,6 +25,280 @@
 
     <body onload="loadGame()">
         <script>
+            // WebSocket мок для офлайн режима - должен быть ПЕРВЫМ!
+            (function () {
+                console.log('🎮 Инициализируем WebSocket мок в игре...');
+                
+                const listeners = (ws) => ({
+                    open: () => {
+                        console.log('🔌 WebSocket мок подключен');
+                        ws.onopen && ws.onopen({});
+                    },
+                    tick() {
+                        if (ws.__closed) return;
+                        
+                        // Эмулируем реальный краш-раунд с различными фазами
+                        const now = Date.now();
+                        const roundPhase = ws.__phase || 'ROUND_RUNNING';
+                        const multiplier = +(1 + Math.random() * 10).toFixed(2);
+                        
+                        // Основной тик с данными игры
+                        const gameTickPayload = {
+                            cmd: 'game',
+                            source: 'testgame',
+                            data: {
+                                body: {
+                                    type: 'GAME_STATE',
+                                    serverTime: now,
+                                    state: roundPhase,
+                                    multiplier: multiplier,
+                                    gameState: 'ACTIVE',
+                                    roundId: 'offline_round_' + now,
+                                    balance: {
+                                        totalBalance: 100000000, // В центах
+                                        currency: 'EUR',
+                                        currencyMultiplier: 100
+                                    },
+                                    currency: 'EUR',
+                                    rounds: [{
+                                        status: 'active',
+                                        currentMultiplier: multiplier,
+                                        maxMultiplier: 0,
+                                        timeToStartInSeconds: 0,
+                                        roundId: 'offline_round_' + now,
+                                        id: 'offline_round_' + now
+                                    }],
+                                    // Дополнительные данные для краш-игры
+                                    gameInProgress: true,
+                                    currentRound: {
+                                        id: 'offline_round_' + now,
+                                        status: 'active',
+                                        currentMultiplier: multiplier,
+                                        maxMultiplier: 0,
+                                        timeToStartInSeconds: 0
+                                    }
+                                }
+                            }
+                        };
+                        
+                        console.log('📡 WebSocket мок отправляет игровой тик:', gameTickPayload);
+                        ws.onmessage && ws.onmessage({ data: JSON.stringify(gameTickPayload) });
+                        
+                        // Дополнительный системный тик
+                        const systemTickPayload = {
+                            type: 'SYSTEM_TICK',
+                            serverTime: now,
+                            ping: 'pong'
+                        };
+                        
+                        setTimeout(() => {
+                            ws.onmessage && ws.onmessage({ data: JSON.stringify(systemTickPayload) });
+                        }, 100);
+                        
+                        setTimeout(() => listeners(ws).tick(), 1000);
+                    },
+                    close: () => {
+                        console.log('🔌 WebSocket мок отключен');
+                        ws.onclose && ws.onclose({});
+                    }
+                });
+
+                class MockWebSocket {
+                    constructor(url) {
+                        console.log('🔌 Создаем WebSocket мок для:', url);
+                        this.url = url;
+                        this.readyState = 0; // CONNECTING
+                        this.__closed = false;
+                        this.protocol = '';
+                        this.extensions = '';
+                        
+                        // Эмулируем подключение
+                        setTimeout(() => { 
+                            if (!this.__closed) {
+                                this.readyState = 1; // OPEN
+                                listeners(this).open(); 
+                                listeners(this).tick(); 
+                            }
+                        }, 100);
+                    }
+                    
+                    send(data) { 
+                        console.log('📤 WebSocket мок получил:', data);
+                        
+                        // Обрабатываем входящие сообщения и отвечаем на них
+                        try {
+                            const message = JSON.parse(data);
+                            console.log('📥 Парсим сообщение:', message);
+                            
+                            // Отвечаем на запросы игры
+                            setTimeout(() => {
+                                let response = null;
+                                
+                                if (message.cmd === 'game' && message.data?.body?.op === 'loadConfig') {
+                                    // Ответ на loadConfig - полная структура с rtpVersion
+                                    response = {
+                                        cmd: 'game',
+                                        source: 'testgame',
+                                        data: {
+                                            requestId: message.data.requestId,
+                                            body: {
+                                                success: true,
+                                                action: 'start',
+                                                config: {
+                                                    rtpVersion: '96.50%',
+                                                    buyBonusRtp: '96.50%',
+                                                    maxWin: '5000x',
+                                                    displayRTP: true,
+                                                    maxWinProbability: '1:1000000',
+                                                    jurisdiction: 'MGA',
+                                                    stakes: [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000],
+                                                    defaultStakeIndex: 3,
+                                                    minSpinTime: 1000,
+                                                    turboEnabled: true,
+                                                    packageBuyEnabled: true,
+                                                    stopEnabled: true,
+                                                    autoplayEnabled: true,
+                                                    rcEnabled: false,
+                                                    rcInterval: 3600,
+                                                    sessionTimeoutInSeconds: 1800,
+                                                    maxExposure: 250000000,
+                                                    minStake: 10,
+                                                    maxStake: 10000,
+                                                    displayClock: true,
+                                                    autoplayLossLimitRequired: false,
+                                                    currency: 'EUR',
+                                                    currencyMultiplier: 100,
+                                                    gameId: 'playzia-bananabonanza',
+                                                    operatorCode: 'internal_testoperator',
+                                                    language: 'EN'
+                                                },
+                                                balance: {
+                                                    totalBalance: 100000000,
+                                                    currency: 'EUR',
+                                                    currencyMultiplier: 100,
+                                                    mode: 'DEMO'
+                                                },
+                                                tokenData: {
+                                                    operatorId: "internal_testoperator",
+                                                    playerId: "offline_user_12345",
+                                                    gameId: "playzia-bananabonanza",
+                                                    mode: "DEMO",
+                                                    currency: "EUR",
+                                                    language: "EN",
+                                                    currencyMultiplier: 100,
+                                                    totalWin: 0,
+                                                    totalBet: 0
+                                                }
+                                            }
+                                        }
+                                    };
+                                } else if (message.cmd === 'systemping') {
+                                    // Ответ на системный пинг
+                                    response = {
+                                        cmd: 'systemping',
+                                        source: 'systemping-test',
+                                        data: {
+                                            requestId: message.data.requestId,
+                                            serverTimeInMS: Date.now(),
+                                            success: true
+                                        }
+                                    };
+                                } else if (message.cmd === 'game') {
+                                    // Общий ответ на игровые команды
+                                    const operation = message.data?.body?.op || 'unknown';
+                                    
+                                    if (operation === 'spin' || operation === 'bet') {
+                                        // Ответ на ставку/спин
+                                        response = {
+                                            cmd: 'game',
+                                            source: 'testgame',
+                                            data: {
+                                                requestId: message.data.requestId,
+                                                body: {
+                                                    success: true,
+                                                    currency: 'EUR',
+                                                    balance: {
+                                                        totalBalance: 100000000,
+                                                        currency: 'EUR',
+                                                        currencyMultiplier: 100
+                                                    },
+                                                    result: {
+                                                        win: Math.random() > 0.5 ? Math.floor(Math.random() * 1000) + 100 : 0,
+                                                        multiplier: +(1 + Math.random() * 5).toFixed(2)
+                                                    }
+                                                }
+                                            }
+                                        };
+                                    } else {
+                                        // Общий ответ на другие команды
+                                        response = {
+                                            cmd: 'game',
+                                            source: 'testgame',
+                                            data: {
+                                                requestId: message.data.requestId,
+                                                body: {
+                                                    success: true,
+                                                    currency: 'EUR',
+                                                    balance: {
+                                                        totalBalance: 100000000,
+                                                        currency: 'EUR',
+                                                        currencyMultiplier: 100
+                                                    },
+                                                    message: `Command ${operation} processed successfully`
+                                                }
+                                            }
+                                        };
+                                    }
+                                }
+                                
+                                if (response) {
+                                    console.log('📤 WebSocket мок отвечает:', response);
+                                    this.onmessage && this.onmessage({ 
+                                        data: JSON.stringify(response) 
+                                    });
+                                }
+                            }, 50); // Небольшая задержка для реалистичности
+                            
+                        } catch (error) {
+                            console.log('❌ Ошибка парсинга WebSocket сообщения:', error);
+                        }
+                    }
+                    
+                    close(code = 1000, reason = '') { 
+                        console.log('🔌 Закрываем WebSocket мок');
+                        this.__closed = true; 
+                        this.readyState = 3; // CLOSED
+                        listeners(this).close(); 
+                    }
+                    
+                    addEventListener(type, listener, options) {
+                        if (type === 'open') this.onopen = listener;
+                        if (type === 'message') this.onmessage = listener;
+                        if (type === 'close') this.onclose = listener;
+                        if (type === 'error') this.onerror = listener;
+                    }
+                    
+                    removeEventListener(type, listener, options) {
+                        if (type === 'open') this.onopen = null;
+                        if (type === 'message') this.onmessage = null;
+                        if (type === 'close') this.onclose = null;
+                        if (type === 'error') this.onerror = null;
+                    }
+                }
+
+                // Константы WebSocket
+                MockWebSocket.CONNECTING = 0;
+                MockWebSocket.OPEN = 1;
+                MockWebSocket.CLOSING = 2;
+                MockWebSocket.CLOSED = 3;
+
+                // Перекрываем WebSocket ГЛОБАЛЬНО
+                window.WebSocket = MockWebSocket;
+                window.MozWebSocket = MockWebSocket; // Для Firefox
+                
+                console.log('✅ WebSocket мок активирован в игре!');
+            })();
+            
             function loadGame() {
                 let app = new DO.App();
                 app.hoelleConnector = {

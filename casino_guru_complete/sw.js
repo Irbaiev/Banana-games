@@ -227,18 +227,57 @@ const MOCK_DATA = {
         timestamp: Date.now()
     },
     '/api.playzia.staging.hizi-service.com/gameapi/bananabonanza/interface': {
-        gameData: {
-            gameId: 'playzia-bananabonanza',
-            version: '1.0.0',
-            features: ['autoplay', 'turbo', 'gamble'],
-            betLevels: [0.1, 0.2, 0.5, 1.0, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0],
-            maxBet: 100.0,
-            minBet: 0.1
-        },
-        playerData: {
-            balance: 1000000.0,
+        success: true,
+        action: 'start',
+        config: {
+            rtpVersion: '96.50%',
+            buyBonusRtp: '96.50%',
+            maxWin: '5000x',
+            displayRTP: true,
+            maxWinProbability: '1:1000000',
+            jurisdiction: 'MGA',
+            stakes: [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000], // В центах
+            defaultStakeIndex: 3,
+            minSpinTime: 1000,
+            turboEnabled: true,
+            packageBuyEnabled: true,
+            stopEnabled: true,
+            autoplayEnabled: true,
+            rcEnabled: false,
+            rcInterval: 3600,
+            sessionTimeoutInSeconds: 1800,
+            maxExposure: 250000000,
+            minStake: 10,
+            maxStake: 10000,
+            displayClock: true,
+            autoplayLossLimitRequired: false,
             currency: 'EUR',
-            sessionId: 'offline_session_12345'
+            currencyMultiplier: 100,
+            gameId: 'playzia-bananabonanza',
+            operatorCode: 'internal_testoperator',
+            language: 'EN'
+        },
+        balance: {
+            totalBalance: 100000000, // В центах
+            currency: 'EUR',
+            currencyMultiplier: 100,
+            mode: 'DEMO',
+            balances: [{
+                amount: 100000000,
+                currency: 'EUR',
+                type: 'demo'
+            }]
+        },
+        tokenData: {
+            operatorId: "internal_testoperator",
+            playerId: "offline_user_12345", 
+            gameId: "playzia-bananabonanza",
+            mode: "DEMO",
+            currency: "EUR",
+            language: "EN",
+            currencyMultiplier: 100,
+            totalWin: 0,
+            totalBet: 0
         },
         status: 'success',
         timestamp: Date.now()
@@ -436,17 +475,14 @@ self.addEventListener('fetch', event => {
         logGameLoadStage(2, `FrontendService request detected: ${url.pathname}`);
     }
     
-    // Перехватываем WebSocket запросы
+    // Перехватываем WebSocket запросы - но в нашем случае мок уже встроен в страницу
     if (url.protocol === 'wss:' || url.protocol === 'ws:') {
-        logGameLoadStage(4, `WebSocket connection attempt: ${url.href}`);
-        // Перенаправляем WebSocket запросы на наш WebSocket сервер
-        const wsUrl = url.href.replace('ws://localhost:5000/', 'ws://localhost:5001/');
-        logGameLoadStage(4, `Redirecting WebSocket to: ${wsUrl}`);
-        event.respondWith(new Response('WebSocket redirected to offline server', { 
-            status: 200,
+        logGameLoadStage(4, `WebSocket connection attempt blocked (using mock): ${url.href}`);
+        // Блокируем WebSocket запросы, так как у нас есть мок
+        event.respondWith(new Response('WebSocket blocked - using offline mock', { 
+            status: 403,
             headers: { 
-                'Content-Type': 'text/plain',
-                'X-WebSocket-URL': wsUrl
+                'Content-Type': 'text/plain'
             }
         }));
         return;
@@ -456,6 +492,15 @@ self.addEventListener('fetch', event => {
     if (url.pathname.includes('/casino.guru/static.casino.guru/')) {
         const correctedPath = url.pathname.replace('/casino.guru/static.casino.guru/', '/static.casino.guru/');
         logGameLoadStage(6, `Correcting static file path: ${url.pathname} -> ${correctedPath}`);
+        const correctedUrl = new URL(correctedPath, url.origin);
+        event.respondWith(fetch(correctedUrl));
+        return;
+    }
+    
+    // Специальная обработка для динамических чанков
+    if (url.pathname.includes('/Tippy.es6.js') || url.pathname.includes('/blocker.es6.js')) {
+        logGameLoadStage(6, `Handling dynamic chunk: ${url.pathname}`);
+        const correctedPath = url.pathname.replace('/casino.guru/static.casino.guru/', '/static.casino.guru/');
         const correctedUrl = new URL(correctedPath, url.origin);
         event.respondWith(fetch(correctedUrl));
         return;
