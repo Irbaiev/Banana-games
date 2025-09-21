@@ -1,0 +1,489 @@
+
+playzia_logo.webp
+size: 3731,719
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+playzia_logo_00
+  rotate: true
+  xy: 3024, 359
+  size: 107, 99
+  orig: 690, 387
+  offset: 13, 5
+  index: -1
+playzia_logo_01
+  rotate: false
+  xy: 3326, 55
+  size: 144, 178
+  orig: 690, 387
+  offset: 10, 2
+  index: -1
+playzia_logo_02
+  rotate: false
+  xy: 3296, 542
+  size: 146, 175
+  orig: 690, 387
+  offset: 13, 5
+  index: -1
+playzia_logo_03
+  rotate: false
+  xy: 2702, 209
+  size: 116, 125
+  orig: 690, 387
+  offset: 62, 55
+  index: -1
+playzia_logo_04
+  rotate: false
+  xy: 3472, 187
+  size: 85, 75
+  orig: 690, 387
+  offset: 112, 105
+  index: -1
+playzia_logo_05
+  rotate: false
+  xy: 3296, 474
+  size: 79, 66
+  orig: 690, 387
+  offset: 126, 127
+  index: -1
+playzia_logo_06
+  rotate: false
+  xy: 3472, 124
+  size: 61, 61
+  orig: 690, 387
+  offset: 148, 147
+  index: -1
+playzia_logo_07
+  rotate: false
+  xy: 3472, 62
+  size: 59, 60
+  orig: 690, 387
+  offset: 148, 147
+  index: -1
+playzia_logo_08
+  rotate: true
+  xy: 3472, 2
+  size: 58, 59
+  orig: 690, 387
+  offset: 147, 147
+  index: -1
+playzia_logo_09
+  rotate: false
+  xy: 3533, 63
+  size: 58, 59
+  orig: 690, 387
+  offset: 147, 147
+  index: -1
+playzia_logo_10
+  rotate: false
+  xy: 3533, 2
+  size: 58, 59
+  orig: 690, 387
+  offset: 147, 147
+  index: -1
+playzia_logo_11
+  rotate: false
+  xy: 3593, 79
+  size: 58, 59
+  orig: 690, 387
+  offset: 147, 147
+  index: -1
+playzia_logo_12
+  rotate: false
+  xy: 3593, 18
+  size: 58, 59
+  orig: 690, 387
+  offset: 147, 147
+  index: -1
+playzia_logo_13
+  rotate: true
+  xy: 3653, 80
+  size: 58, 59
+  orig: 690, 387
+  offset: 147, 147
+  index: -1
+playzia_logo_14
+  rotate: false
+  xy: 3377, 475
+  size: 77, 65
+  orig: 690, 387
+  offset: 128, 140
+  index: -1
+playzia_logo_15
+  rotate: true
+  xy: 3181, 266
+  size: 92, 102
+  orig: 690, 387
+  offset: 131, 142
+  index: -1
+playzia_logo_16
+  rotate: false
+  xy: 3472, 407
+  size: 105, 147
+  orig: 690, 387
+  offset: 131, 142
+  index: -1
+playzia_logo_17
+  rotate: true
+  xy: 2852, 338
+  size: 85, 170
+  orig: 690, 387
+  offset: 143, 149
+  index: -1
+playzia_logo_18
+  rotate: true
+  xy: 3125, 360
+  size: 106, 163
+  orig: 690, 387
+  offset: 104, 173
+  index: -1
+playzia_logo_19
+  rotate: false
+  xy: 3577, 140
+  size: 140, 134
+  orig: 690, 387
+  offset: 64, 208
+  index: -1
+playzia_logo_20
+  rotate: false
+  xy: 3019, 229
+  size: 160, 107
+  orig: 690, 387
+  offset: 41, 223
+  index: -1
+playzia_logo_21
+  rotate: true
+  xy: 3444, 556
+  size: 161, 142
+  orig: 690, 387
+  offset: 25, 174
+  index: -1
+playzia_logo_22
+  rotate: false
+  xy: 3014, 31
+  size: 132, 180
+  orig: 690, 387
+  offset: 21, 136
+  index: -1
+playzia_logo_23
+  rotate: true
+  xy: 2820, 213
+  size: 121, 197
+  orig: 690, 387
+  offset: 36, 113
+  index: -1
+playzia_logo_24
+  rotate: false
+  xy: 2857, 15
+  size: 155, 196
+  orig: 690, 387
+  offset: 51, 95
+  index: -1
+playzia_logo_25
+  rotate: true
+  xy: 2531, 2
+  size: 202, 174
+  orig: 690, 387
+  offset: 50, 83
+  index: -1
+playzia_logo_26
+  rotate: true
+  xy: 3290, 235
+  size: 232, 135
+  orig: 690, 387
+  offset: 55, 82
+  index: -1
+playzia_logo_27
+  rotate: true
+  xy: 3002, 468
+  size: 249, 138
+  orig: 690, 387
+  offset: 66, 99
+  index: -1
+playzia_logo_28
+  rotate: true
+  xy: 3142, 469
+  size: 248, 152
+  orig: 690, 387
+  offset: 87, 118
+  index: -1
+playzia_logo_29
+  rotate: true
+  xy: 3148, 4
+  size: 223, 176
+  orig: 690, 387
+  offset: 120, 113
+  index: -1
+playzia_logo_30
+  rotate: true
+  xy: 2357, 9
+  size: 184, 172
+  orig: 690, 387
+  offset: 159, 117
+  index: -1
+playzia_logo_31
+  rotate: true
+  xy: 2, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_32
+  rotate: true
+  xy: 152, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_33
+  rotate: true
+  xy: 302, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_34
+  rotate: true
+  xy: 452, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_35
+  rotate: true
+  xy: 602, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_36
+  rotate: true
+  xy: 752, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_37
+  rotate: true
+  xy: 902, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_38
+  rotate: true
+  xy: 1052, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_39
+  rotate: false
+  xy: 3588, 569
+  size: 141, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_40
+  rotate: true
+  xy: 1202, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_41
+  rotate: true
+  xy: 1352, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_42
+  rotate: false
+  xy: 3588, 419
+  size: 141, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_43
+  rotate: true
+  xy: 1502, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_44
+  rotate: true
+  xy: 1652, 2
+  size: 140, 148
+  orig: 690, 387
+  offset: 203, 141
+  index: -1
+playzia_logo_45
+  rotate: true
+  xy: 3579, 276
+  size: 141, 148
+  orig: 690, 387
+  offset: 192, 141
+  index: -1
+playzia_logo_46
+  rotate: true
+  xy: 3427, 264
+  size: 141, 148
+  orig: 690, 387
+  offset: 182, 141
+  index: -1
+playzia_logo_47
+  rotate: true
+  xy: 2707, 3
+  size: 204, 148
+  orig: 690, 387
+  offset: 172, 141
+  index: -1
+playzia_logo_48
+  rotate: true
+  xy: 2852, 425
+  size: 292, 148
+  orig: 690, 387
+  offset: 162, 141
+  index: -1
+playzia_logo_49
+  rotate: true
+  xy: 2702, 336
+  size: 381, 148
+  orig: 690, 387
+  offset: 151, 141
+  index: -1
+playzia_logo_50
+  rotate: true
+  xy: 2552, 249
+  size: 468, 148
+  orig: 690, 387
+  offset: 141, 141
+  index: -1
+playzia_logo_51
+  rotate: true
+  xy: 2402, 206
+  size: 511, 148
+  orig: 690, 387
+  offset: 131, 141
+  index: -1
+playzia_logo_52
+  rotate: true
+  xy: 2252, 195
+  size: 522, 148
+  orig: 690, 387
+  offset: 120, 141
+  index: -1
+playzia_logo_53
+  rotate: true
+  xy: 2102, 185
+  size: 532, 148
+  orig: 690, 387
+  offset: 110, 141
+  index: -1
+playzia_logo_54
+  rotate: true
+  xy: 1952, 175
+  size: 542, 148
+  orig: 690, 387
+  offset: 100, 141
+  index: -1
+playzia_logo_55
+  rotate: false
+  xy: 1802, 4
+  size: 553, 148
+  orig: 690, 387
+  offset: 89, 141
+  index: -1
+playzia_logo_56
+  rotate: true
+  xy: 1802, 154
+  size: 563, 148
+  orig: 690, 387
+  offset: 79, 141
+  index: -1
+playzia_logo_57
+  rotate: true
+  xy: 152, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_58
+  rotate: true
+  xy: 302, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_59
+  rotate: true
+  xy: 452, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_60
+  rotate: true
+  xy: 602, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_61
+  rotate: true
+  xy: 752, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_62
+  rotate: true
+  xy: 902, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_63
+  rotate: true
+  xy: 1052, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_64
+  rotate: true
+  xy: 1202, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_65
+  rotate: true
+  xy: 1352, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_66
+  rotate: true
+  xy: 1502, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_67
+  rotate: true
+  xy: 1652, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
+playzia_logo_68
+  rotate: true
+  xy: 2, 144
+  size: 573, 148
+  orig: 690, 387
+  offset: 69, 141
+  index: -1
