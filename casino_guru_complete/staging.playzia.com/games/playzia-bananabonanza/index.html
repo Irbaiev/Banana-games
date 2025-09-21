@@ -37,63 +37,191 @@
                     tick() {
                         if (ws.__closed) return;
                         
-                        // Эмулируем реальный краш-раунд с различными фазами
-                        const now = Date.now();
-                        const roundPhase = ws.__phase || 'ROUND_RUNNING';
-                        const multiplier = +(1 + Math.random() * 10).toFixed(2);
+                        // Инициализируем состояние раунда если нужно
+                        if (!ws.__roundState) {
+                            ws.__roundState = {
+                                phase: 'waiting', // waiting, countdown, active, ended
+                                roundId: 'offline_round_' + Date.now(),
+                                startTime: Date.now(),
+                                countdownTime: 5,
+                                multiplier: 1.00,
+                                maxMultiplier: 0
+                            };
+                        }
                         
-                        // Основной тик с данными игры
-                        const gameTickPayload = {
-                            cmd: 'game',
-                            source: 'testgame',
-                            data: {
-                                body: {
-                                    type: 'GAME_STATE',
-                                    serverTime: now,
-                                    state: roundPhase,
-                                    multiplier: multiplier,
-                                    gameState: 'ACTIVE',
-                                    roundId: 'offline_round_' + now,
-                                    balance: {
-                                        totalBalance: 100000000, // В центах
-                                        currency: 'EUR',
-                                        currencyMultiplier: 100
-                                    },
-                                    currency: 'EUR',
+                        const now = Date.now();
+                        const state = ws.__roundState;
+                        
+                        // Логика фаз раунда
+                        if (state.phase === 'waiting') {
+                            // Переходим к отсчету
+                            state.phase = 'countdown';
+                            state.countdownTime = 5;
+                            console.log('🕐 Начинаем отсчет до нового раунда...');
+                        } else if (state.phase === 'countdown') {
+                            state.countdownTime--;
+                            if (state.countdownTime <= 0) {
+                                state.phase = 'active';
+                                state.multiplier = 1.00;
+                                state.roundId = 'offline_round_' + now;
+                                console.log('🚀 Раунд начался!');
+                                
+                                // Принудительно перезапускаем анимацию банана
+                                setTimeout(() => {
+                                    try {
+                                        // Ищем и перезапускаем анимации
+                                        const canvases = document.querySelectorAll('canvas');
+                                        canvases.forEach(canvas => {
+                                            // Кликаем в каждый canvas для активации
+                                            const clickEvent = new MouseEvent('click', {
+                                                view: window,
+                                                bubbles: true,
+                                                cancelable: true
+                                            });
+                                            canvas.dispatchEvent(clickEvent);
+                                        });
+                                        
+                                        // Попытка перезапустить анимацию через игровые объекты
+                                        if (window.__gameApp) {
+                                            window.__gameApp.emit('START_GAME');
+                                            window.__gameApp.emit('ROUND_START');
+                                            console.log('🔄 Отправлены события перезапуска анимации');
+                                        }
+                                        
+                                        // Вызываем функцию перезапуска анимации банана
+                                        if (window.__restartBananaAnimation) {
+                                            window.__restartBananaAnimation();
+                                        }
+                                        
+                                    } catch (error) {
+                                        console.log('⚠️ Ошибка перезапуска анимации:', error);
+                                    }
+                                }, 200);
+                            }
+                        } else if (state.phase === 'active') {
+                            // Увеличиваем множитель
+                            state.multiplier += 0.01 + Math.random() * 0.05;
+                            
+                            // Случайно завершаем раунд (краш)
+                            if (Math.random() < 0.02) { // 2% шанс краша каждую секунду
+                                state.phase = 'ended';
+                                state.maxMultiplier = state.multiplier;
+                                console.log(`💥 Раунд завершен! Множитель: ${state.multiplier.toFixed(2)}x`);
+                            }
+                        } else if (state.phase === 'ended') {
+                            // Ждем 3 секунды и начинаем новый раунд
+                            if (!state.endTimer) {
+                                state.endTimer = true;
+                                
+                                // Отправляем событие окончания раунда СРАЗУ
+                                const roundEndEvent = {
                                     rounds: [{
-                                        status: 'active',
-                                        currentMultiplier: multiplier,
+                                        id: state.roundId,
+                                        status: 'ended',
+                                        currentMultiplier: 0,
+                                        maxMultiplier: +state.maxMultiplier.toFixed(2),
+                                        timeToStartInSeconds: 0
+                                    }]
+                                };
+                                
+                                // Принудительно вызываем обработку окончания
+                                setTimeout(() => {
+                                    try {
+                                        if (window.__gameApp) {
+                                            window.__gameApp.emit('gameInProgress', roundEndEvent);
+                                            console.log('💥 Отправлено событие окончания раунда');
+                                        }
+                                        ws.onmessage && ws.onmessage({ data: JSON.stringify(roundEndEvent) });
+                                    } catch (error) {
+                                        console.log('⚠️ Ошибка отправки события окончания:', error);
+                                    }
+                                }, 100);
+                                
+                                setTimeout(() => {
+                                    state.phase = 'waiting';
+                                    state.endTimer = false;
+                                    state.maxMultiplier = 0; // Сбрасываем
+                                    console.log('⏳ Подготовка к новому раунду...');
+                                }, 3000);
+                            }
+                        }
+                        
+                        // Отправляем правильные события для UI (как ожидает onGameInProgress)
+                        if (window.__startGameRounds) {
+                            console.log(`📡 WebSocket мок: ${state.phase} - множитель: ${state.multiplier.toFixed(2)}x`);
+                            
+                            // Правильный формат для onGameInProgress функции
+                            let gameEvent = null;
+                            
+                            if (state.phase === 'countdown' || state.phase === 'waiting') {
+                                // Фаза ожидания/отсчета - getready
+                                gameEvent = {
+                                    rounds: [{
+                                        id: state.roundId,
+                                        status: 'getready',
+                                        currentMultiplier: 0,
                                         maxMultiplier: 0,
-                                        timeToStartInSeconds: 0,
-                                        roundId: 'offline_round_' + now,
-                                        id: 'offline_round_' + now
-                                    }],
-                                    // Дополнительные данные для краш-игры
-                                    gameInProgress: true,
-                                    currentRound: {
-                                        id: 'offline_round_' + now,
+                                        timeToStartInSeconds: state.countdownTime > 0 ? state.countdownTime : 5
+                                    }]
+                                };
+                            } else if (state.phase === 'active') {
+                                // Активный раунд - показываем растущий множитель
+                                gameEvent = {
+                                    rounds: [{
+                                        id: state.roundId,
                                         status: 'active',
-                                        currentMultiplier: multiplier,
+                                        currentMultiplier: +state.multiplier.toFixed(2),
                                         maxMultiplier: 0,
                                         timeToStartInSeconds: 0
-                                    }
-                                }
+                                    }]
+                                };
+                            } else if (state.phase === 'ended') {
+                                // Раунд завершен - показываем финальный множитель
+                                gameEvent = {
+                                    rounds: [{
+                                        id: state.roundId,
+                                        status: 'ended',
+                                        currentMultiplier: 0,
+                                        maxMultiplier: +state.maxMultiplier.toFixed(2),
+                                        timeToStartInSeconds: 0
+                                    }]
+                                };
                             }
-                        };
-                        
-                        console.log('📡 WebSocket мок отправляет игровой тик:', gameTickPayload);
-                        ws.onmessage && ws.onmessage({ data: JSON.stringify(gameTickPayload) });
-                        
-                        // Дополнительный системный тик
-                        const systemTickPayload = {
-                            type: 'SYSTEM_TICK',
-                            serverTime: now,
-                            ping: 'pong'
-                        };
-                        
-                        setTimeout(() => {
-                            ws.onmessage && ws.onmessage({ data: JSON.stringify(systemTickPayload) });
-                        }, 100);
+                            
+                            if (gameEvent) {
+                                // Отправляем событие напрямую в игровую логику
+                                setTimeout(() => {
+                                    // Пытаемся найти и вызвать игровые события
+                                    try {
+                                        if (window.__gameApp) {
+                                            // Отправляем событие через ApplicationBase
+                                            window.__gameApp.emit('gameInProgress', gameEvent);
+                                            console.log('📤 Отправлено событие через ApplicationBase');
+                                        }
+                                        
+                                        // Ищем игровую сцену и вызываем onGameInProgress напрямую
+                                        if (window.DO && window.DO.RendererScenes && window.DO.RendererScenes.Game) {
+                                            const gameScene = window.DO.RendererScenes.Game.BananaGameScene;
+                                            if (gameScene && gameScene.prototype && gameScene.prototype.onGameInProgress) {
+                                                // Находим активный экземпляр сцены
+                                                const sceneInstance = window.__gameRenderer?.SceneManager?.getCurrentScene?.();
+                                                if (sceneInstance && sceneInstance.onGameInProgress) {
+                                                    sceneInstance.onGameInProgress(gameEvent);
+                                                    console.log('📤 Вызван onGameInProgress напрямую');
+                                                }
+                                            }
+                                        }
+                                    } catch (error) {
+                                        console.log('⚠️ Не удалось вызвать игровые события напрямую:', error);
+                                    }
+                                    
+                                    // Также отправляем через WebSocket для полноты
+                                    ws.onmessage && ws.onmessage({ 
+                                        data: JSON.stringify(gameEvent) 
+                                    });
+                                }, 50);
+                            }
+                        }
                         
                         setTimeout(() => listeners(ws).tick(), 1000);
                     },
@@ -130,9 +258,10 @@
                             const message = JSON.parse(data);
                             console.log('📥 Парсим сообщение:', message);
                             
-                            // Отвечаем на запросы игры
+                            // Отвечаем на запросы игры НЕМЕДЛЕННО
                             setTimeout(() => {
                                 let response = null;
+                                const requestId = message.data?.requestId || 'unknown';
                                 
                                 if (message.cmd === 'game' && message.data?.body?.op === 'loadConfig') {
                                     // Ответ на loadConfig - полная структура с rtpVersion
@@ -140,7 +269,7 @@
                                         cmd: 'game',
                                         source: 'testgame',
                                         data: {
-                                            requestId: message.data.requestId,
+                                            requestId: requestId,
                                             body: {
                                                 success: true,
                                                 action: 'start',
@@ -198,11 +327,16 @@
                                         cmd: 'systemping',
                                         source: 'systemping-test',
                                         data: {
-                                            requestId: message.data.requestId,
+                                            requestId: requestId,
                                             serverTimeInMS: Date.now(),
+                                            localTimeInMS: message.data.localTimeInMS,
                                             success: true
                                         }
                                     };
+                                } else if (message.cmd === 'metric') {
+                                    // Ответ на метрики (игнорируем, но отвечаем)
+                                    console.log('📊 Метрика получена:', message.data);
+                                    // Не отвечаем на метрики, они односторонние
                                 } else if (message.cmd === 'game') {
                                     // Общий ответ на игровые команды
                                     const operation = message.data?.body?.op || 'unknown';
@@ -257,7 +391,7 @@
                                         data: JSON.stringify(response) 
                                     });
                                 }
-                            }, 50); // Небольшая задержка для реалистичности
+                            }, 10); // Быстрый ответ для предотвращения timeout
                             
                         } catch (error) {
                             console.log('❌ Ошибка парсинга WebSocket сообщения:', error);
@@ -297,6 +431,203 @@
                 window.MozWebSocket = MockWebSocket; // Для Firefox
                 
                 console.log('✅ WebSocket мок активирован в игре!');
+                
+                // Добавляем глобальные команды для диагностики
+                window.__debugGame = function() {
+                    console.log('🔍 Диагностика игры:');
+                    console.log('DO объект:', window.DO);
+                    console.log('Game App:', window.__gameApp);
+                    console.log('Game Renderer:', window.__gameRenderer);
+                    
+                    if (window.__gameRenderer && window.__gameRenderer.SceneManager) {
+                        const scene = window.__gameRenderer.SceneManager.getCurrentScene();
+                        console.log('Текущая сцена:', scene);
+                        
+                        if (scene && scene.children) {
+                            scene.children.forEach((child, i) => {
+                                if (child.skeleton && child.skeleton.data) {
+                                    console.log(`Spine ${i} анимации:`, 
+                                        child.skeleton.data.animations.map(a => a.name)
+                                    );
+                                }
+                            });
+                        }
+                    }
+                };
+                
+                // Запускаем симуляцию раундов через 5 секунд после загрузки
+                setTimeout(() => {
+                    console.log('🎲 Запускаем симуляцию раундов...');
+                    window.__startGameRounds = true;
+                    
+                    // Пытаемся найти игровые объекты для прямого управления
+                    setTimeout(() => {
+                        console.log('🔍 Ищем игровые объекты...');
+                        if (window.DO && window.DO.Common && window.DO.Common.ApplicationBase) {
+                            console.log('✅ Найден DO.Common.ApplicationBase');
+                            window.__gameApp = window.DO.Common.ApplicationBase.instance;
+                        }
+                        
+                        // Ищем сцену игры
+                        if (window.DO && window.DO.Core && window.DO.Core.Renderer) {
+                            console.log('✅ Найден DO.Core.Renderer');
+                            window.__gameRenderer = window.DO.Core.Renderer;
+                        }
+                        
+                        // Пытаемся активировать игру принудительно
+                        setTimeout(() => {
+                            console.log('🔧 Принудительная активация игры...');
+                            
+                            // Ищем элементы игры в DOM
+                            const gameWrapper = document.getElementById('game_wrapper');
+                            if (gameWrapper) {
+                                console.log('✅ Найден game_wrapper');
+                                
+                                // Кликаем в игру для активации
+                                const clickEvent = new MouseEvent('click', {
+                                    view: window,
+                                    bubbles: true,
+                                    cancelable: true
+                                });
+                                gameWrapper.dispatchEvent(clickEvent);
+                                console.log('👆 Симулирован клик в игру');
+                            }
+                            
+                            // Ищем canvas элементы
+                            const canvases = document.querySelectorAll('canvas');
+                            if (canvases.length > 0) {
+                                console.log(`✅ Найдено ${canvases.length} canvas элементов`);
+                                canvases.forEach((canvas, index) => {
+                                    console.log(`Canvas ${index}: ${canvas.width}x${canvas.height}`);
+                                    
+                                    // Кликаем в каждый canvas для полной активации
+                                    const clickEvent = new MouseEvent('click', {
+                                        view: window,
+                                        bubbles: true,
+                                        cancelable: true
+                                    });
+                                    canvas.dispatchEvent(clickEvent);
+                                });
+                            }
+                            
+                            // Добавляем глобальную функцию для перезапуска анимации
+                            window.__restartBananaAnimation = function() {
+                                try {
+                                    console.log('🍌 Перезапускаем анимацию банана...');
+                                    
+                                    // Ищем Spine анимации
+                                    if (window.PIXI && window.PIXI.spine) {
+                                        console.log('✅ PIXI.spine найден');
+                                    }
+                                    
+                                    // Пытаемся найти игровую сцену
+                                    if (window.__gameRenderer && window.__gameRenderer.SceneManager) {
+                                        const currentScene = window.__gameRenderer.SceneManager.getCurrentScene();
+                                        if (currentScene) {
+                                            console.log('✅ Найдена текущая сцена:', currentScene.constructor.name);
+                                            
+                                            // Пытаемся найти анимации банана
+                                            if (currentScene.children) {
+                                                const findAndRestartSpineAnimations = (container, depth = 0) => {
+                                                    if (depth > 5) return; // Ограничиваем глубину поиска
+                                                    
+                                                    container.children?.forEach((child, index) => {
+                                                        if (child.skeleton || child.state) {
+                                                            console.log(`🎭 Найдена Spine анимация ${index} (глубина ${depth})`);
+                                                            
+                                                            // Пробуем разные методы перезапуска
+                                                            try {
+                                                                if (child.state) {
+                                                                    // Останавливаем все анимации
+                                                                    child.state.clearTracks();
+                                                                    
+                                                                    // Пробуем разные названия анимаций
+                                                                    const animationNames = [
+                                                                        'animation', 'idle', 'default', 'intro', 
+                                                                        'banana_up', 'banana_rise', 'rise', 'up',
+                                                                        'start', 'begin', 'loop'
+                                                                    ];
+                                                                    
+                                                                    for (const animName of animationNames) {
+                                                                        try {
+                                                                            child.state.setAnimation(0, animName, true);
+                                                                            console.log(`🔄 Анимация "${animName}" запущена!`);
+                                                                            break;
+                                                                        } catch (e) {
+                                                                            // Анимация с таким именем не найдена
+                                                                        }
+                                                                    }
+                                                                    
+                                                                    // Альтернативный метод - перезапуск через скелет
+                                                                    if (child.skeleton && child.skeleton.data && child.skeleton.data.animations) {
+                                                                        const animations = child.skeleton.data.animations;
+                                                                        if (animations.length > 0) {
+                                                                            const firstAnim = animations[0];
+                                                                            child.state.setAnimation(0, firstAnim.name, true);
+                                                                            console.log(`🔄 Перезапущена первая анимация: ${firstAnim.name}`);
+                                                                        }
+                                                                    }
+                                                                }
+                                                                
+                                                                // Принудительное обновление
+                                                                if (child.update) {
+                                                                    child.update(0.016); // 60 FPS
+                                                                }
+                                                                
+                                                            } catch (error) {
+                                                                console.log(`⚠️ Ошибка перезапуска анимации ${index}:`, error);
+                                                            }
+                                                        }
+                                                        
+                                                        // Рекурсивно ищем в дочерних объектах
+                                                        if (child.children && child.children.length > 0) {
+                                                            findAndRestartSpineAnimations(child, depth + 1);
+                                                        }
+                                                    });
+                                                };
+                                                
+                                                findAndRestartSpineAnimations(currentScene);
+                                            }
+                                        }
+                                    }
+                                    
+                                    // Дополнительные методы активации
+                                    setTimeout(() => {
+                                        // Принудительное обновление всех canvas
+                                        const canvases = document.querySelectorAll('canvas');
+                                        canvases.forEach(canvas => {
+                                            if (canvas.getContext) {
+                                                const ctx = canvas.getContext('2d');
+                                                if (ctx) {
+                                                    // Принудительная перерисовка
+                                                    ctx.save();
+                                                    ctx.restore();
+                                                }
+                                            }
+                                        });
+                                        
+                                        // Попытка перезапуска через PIXI Application
+                                        if (window.PIXI && window.PIXI.Application) {
+                                            console.log('🎨 Попытка перезапуска через PIXI.Application');
+                                        }
+                                        
+                                        // Поиск анимаций через глобальные объекты
+                                        if (window.DO && window.DO.RendererScenes) {
+                                            console.log('🔍 Поиск через DO.RendererScenes...');
+                                            Object.keys(window.DO.RendererScenes).forEach(key => {
+                                                console.log(`Найдена сцена: ${key}`);
+                                            });
+                                        }
+                                        
+                                    }, 500);
+                                    
+                                } catch (error) {
+                                    console.log('❌ Ошибка перезапуска анимации банана:', error);
+                                }
+                            };
+                        }, 3000);
+                    }, 2000);
+                }, 5000);
             })();
             
             function loadGame() {
