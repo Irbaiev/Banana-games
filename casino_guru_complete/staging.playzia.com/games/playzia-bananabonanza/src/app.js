@@ -646,7 +646,7 @@ DO;
                                 q.current.getGameConfig().getMaxWinProbability() || (c = c.split("|")[0]), $("#german-info .rtp_version").text(c)
                             } else {
                                 $("#german-info").css("display", "block");
-                                var c = i.getPhrase("rtp_only", {
+                                var c = i.getPhrase("", { // rtp_only
                                     rtp: q.current.getGameConfig().getRTP() + "%"
                                 });
                                 $("#german-info .rtp_version").text(c)
