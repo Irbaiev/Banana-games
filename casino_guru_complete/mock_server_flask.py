@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Мок сервер на Flask для оффлайн игры Banana Bonanza
+Адаптирован для Vercel serverless функций
 """
 
 from flask import Flask, jsonify, request, send_from_directory, send_file
@@ -18,6 +19,9 @@ import websockets
 
 app = Flask(__name__)
 CORS(app)  # Включаем CORS для всех запросов
+
+# Настройки для Vercel
+app.config['JSONIFY_PRETTYPRINT_REGULAR'] = False
 
 # Глобальные переменные для состояния игры
 game_state = {
@@ -595,6 +599,9 @@ def internal_error(error):
 
 # ==================== ЗАПУСК СЕРВЕРА ====================
 
+# Для Vercel - экспортируем app
+# Vercel будет автоматически использовать переменную app
+
 if __name__ == '__main__':
     print("🎮 Запуск Flask мок сервера для Banana Bonanza")
     print("🌐 HTTP сервер: http://localhost:5000")
@@ -616,9 +623,10 @@ if __name__ == '__main__':
     print("  • /api.playzia.staging.hizi-service.com/gameapi/v2/* - Playzia API v2")
     print("\nНажмите Ctrl+C для остановки сервера")
     
-    # Запускаем WebSocket сервер в отдельном потоке
-    ws_thread = threading.Thread(target=start_websocket_server, daemon=True)
-    ws_thread.start()
+    # Запускаем WebSocket сервер в отдельном потоке (только для локального запуска)
+    if os.getenv('VERCEL') is None:  # Не запускаем WebSocket на Vercel
+        ws_thread = threading.Thread(target=start_websocket_server, daemon=True)
+        ws_thread.start()
     
     # Запускаем Flask сервер
     app.run(host='0.0.0.0', port=5000, debug=True)

@@ -13,6 +13,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
         <meta name="mobile-web-app-capable" content="yes">
 
+        <!-- Используем системные шрифты, так как оригинальные - заглушки -->
+        <style>
+            /* Используем системные шрифты, похожие на оригинальные */
+            @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700;900&family=Oswald:wght@400;700&family=Montserrat:wght@400;700;900&display=swap');
+        </style>
+        
         <!-- styles -->
         <link rel="stylesheet" href="./assets/html/global.css?v=1.0.0">
         <link rel="stylesheet" href="./assets/html/vex/vex.css?v=1.0.0"/>
@@ -21,6 +27,364 @@
         <meta name="msapplication-TileColor" content="#ffffff">
         <meta name="theme-color" content="#ffffff">
 
+        <!-- CSS для исправления шрифта и иконок -->
+        <style>
+            /* Загружаем оригинальные шрифты */
+            @font-face {
+                font-family: 'Impact';
+                src: url('assets/html/fonts/Impact.woff2') format('woff2');
+                font-weight: normal;
+                font-style: normal;
+            }
+            
+            @font-face {
+                font-family: 'Roboto-Bold';
+                src: url('assets/html/fonts/Roboto-Bold.woff2') format('woff2');
+                font-weight: bold;
+                font-style: normal;
+            }
+            
+            @font-face {
+                font-family: 'Arial Rounded MT Regular';
+                src: url('assets/html/fonts/Arial Rounded MT Regular.woff') format('woff');
+                font-weight: normal;
+                font-style: normal;
+            }
+            
+            @font-face {
+                font-family: 'Myriad Pro Bold Condensed';
+                src: url('assets/html/fonts/Myriad Pro Bold Condensed.woff') format('woff');
+                font-weight: bold;
+                font-style: normal;
+            }
+            
+            @font-face {
+                font-family: 'rockwell-regular';
+                src: url('assets/html/fonts/rockwell-regular.woff2') format('woff2');
+                font-weight: normal;
+                font-style: normal;
+            }
+            
+            @font-face {
+                font-family: 'LEMONMILK-Bold';
+                src: url('assets/html/fonts/LEMONMILK-Bold.woff2') format('woff2');
+                font-weight: bold;
+                font-style: normal;
+            }
+            
+            /* Принудительная загрузка шрифтов */
+            .font-preload {
+                font-family: 'Impact', 'Roboto-Bold', 'Arial Rounded MT Regular', 'Myriad Pro Bold Condensed', 'rockwell-regular', 'LEMONMILK-Bold';
+                position: absolute;
+                left: -9999px;
+                visibility: hidden;
+            }
+            /* Применяем оригинальные шрифты игры точно как в оригинале */
+            
+            /* Основной текст - стандартный шрифт без засечек */
+            body, p, div, span, .text, .content, #settings_page_rules {
+                font-family: 'Arial', 'Helvetica', sans-serif !important;
+                font-weight: normal !important;
+            }
+            
+            /* Заголовки и крупные элементы - толстый шрифт */
+            h1, h2, h3, h4, h5, h6, .heading, .title, #settings_page_rules strong {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: bold !important;
+            }
+            
+            /* Очень толстые элементы как множитель и кнопка BET */
+            .multiplier, .bet-button, .large-text {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: 900 !important;
+                font-stretch: condensed !important;
+            }
+            
+            /* Специальные элементы используют Myriad Pro */
+            .prize, #basicGameInfo, #coinFeatureHeading, #gameRoundInfoDivHeading {
+                font-family: 'Myriad Pro Bold Condensed', Arial, sans-serif !important;
+                font-weight: bold !important;
+            }
+            
+            /* Версия игры - стандартный шрифт */
+            .version-text {
+                font-family: 'Arial', 'Helvetica', sans-serif !important;
+                font-weight: normal !important;
+            }
+            
+            /* Специфичные правила для элементов игры */
+            
+            /* Множитель в центре экрана - очень толстый шрифт */
+            .multiplier-display, .crash-multiplier, .current-multiplier {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: 900 !important;
+                font-stretch: condensed !important;
+                text-shadow: 2px 2px 4px rgba(0,0,0,0.5) !important;
+            }
+            
+            /* Кнопка BET - очень толстый шрифт */
+            .bet-btn, .bet-button, [class*="bet_btn"] {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: 900 !important;
+                font-stretch: condensed !important;
+            }
+            
+            /* Кнопки ставок - стандартный шрифт */
+            .bet-amount-btn, .bet-value-btn, [class*="bet_button"] {
+                font-family: 'Arial', 'Helvetica', sans-serif !important;
+                font-weight: normal !important;
+            }
+            
+            /* Таймер - стандартный шрифт */
+            .timer, .countdown, [class*="timer"] {
+                font-family: 'Arial', 'Helvetica', sans-serif !important;
+                font-weight: normal !important;
+            }
+            
+            /* Множители в верхней панели - стандартный шрифт */
+            .multiplier-btn, .multiplier-button, [class*="multiplier"] {
+                font-family: 'Arial', 'Helvetica', sans-serif !important;
+                font-weight: normal !important;
+            }
+            
+            /* Поля ввода - стандартный шрифт */
+            input, .input-field, [class*="input"] {
+                font-family: 'Arial', 'Helvetica', sans-serif !important;
+                font-weight: normal !important;
+            }
+            
+            /* Текст "AUTO CASH" - стандартный шрифт */
+            .auto-cash, .autocash, [class*="auto"] {
+                font-family: 'Arial', 'Helvetica', sans-serif !important;
+                font-weight: normal !important;
+            }
+            
+            /* Баланс и BET VALUE - толстый шрифт */
+            .balance, .bet-value, [class*="balance"], [class*="bet_value"] {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: bold !important;
+            }
+            
+            /* Специфичные правила для элементов интерфейса */
+            
+            /* Кнопка BET - очень толстый шрифт как в оригинале */
+            .bet-btn, .bet-button, [class*="bet_btn"], button[class*="bet"] {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: 900 !important;
+                font-stretch: condensed !important;
+                text-shadow: 1px 1px 2px rgba(0,0,0,0.3) !important;
+            }
+            
+            /* AUTO CASH - толстый шрифт */
+            .auto-cash, .autocash, [class*="auto"], [class*="Auto"] {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: bold !important;
+                text-transform: uppercase !important;
+            }
+            
+            /* BET VALUE и BALANCE - очень толстый шрифт */
+            .bet-value, .balance, [class*="bet_value"], [class*="balance"] {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: 900 !important;
+                font-stretch: condensed !important;
+                text-transform: uppercase !important;
+            }
+            
+            /* Значения множителей (1.11X) - толстый шрифт */
+            .multiplier-value, .auto-multiplier, [class*="multiplier"], input[value*="X"] {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: bold !important;
+            }
+            
+            /* Значения ставок (1.00, 0.20) - толстый шрифт */
+            .bet-amount, .bet-value-display, [class*="bet_amount"], input[type="text"] {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: bold !important;
+            }
+            
+            /* Кнопки быстрых ставок (100.00, 150.00) - толстый шрифт */
+            .quick-bet, .bet-amount-btn, [class*="bet_button"] {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: bold !important;
+            }
+            
+            /* Агрессивные правила для всех элементов интерфейса */
+            
+            /* Все кнопки с текстом BET */
+            button:contains("BET"), [class*="bet"]:contains("BET"), div:contains("BET") {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: 900 !important;
+                font-stretch: condensed !important;
+            }
+            
+            /* Все элементы с текстом AUTO CASH */
+            [class*="auto"]:contains("CASH"), [class*="Auto"]:contains("CASH"), div:contains("AUTO CASH") {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: bold !important;
+                text-transform: uppercase !important;
+            }
+            
+            /* Все элементы с текстом BET VALUE */
+            [class*="bet_value"], [class*="BetValue"], div:contains("BET VALUE") {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: 900 !important;
+                font-stretch: condensed !important;
+                text-transform: uppercase !important;
+            }
+            
+            /* Все элементы с текстом BALANCE */
+            [class*="balance"], [class*="Balance"], div:contains("BALANCE") {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: 900 !important;
+                font-stretch: condensed !important;
+                text-transform: uppercase !important;
+            }
+            
+            /* Все элементы с множителями (X) */
+            [class*="multiplier"], input[value*="X"], div:contains("X") {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: bold !important;
+            }
+            
+            /* Все элементы с числовыми значениями ставок */
+            [class*="amount"], [class*="value"], input[type="text"], div:contains("€") {
+                font-family: 'Impact', 'Arial Black', Arial, sans-serif !important;
+                font-weight: bold !important;
+            }
+            
+            /* Исправляем отображение иконок настроек */
+            #settings_icon_holder {
+                height: inherit !important;
+                display: flex !important;
+                align-items: center !important;
+                width: 100% !important;
+                position: absolute !important;
+                color: #fff !important;
+                z-index: 1 !important;
+                margin-left: 14% !important;
+            }
+            
+            #settings_icon_holder .icon {
+                background: transparent !important;
+                width: 30.33% !important;
+            }
+            
+            #settings_icon_holder .icon_new {
+                background: transparent !important;
+                width: 33.33% !important;
+            }
+            
+            #button_rules_menu, #button_settings_menu {
+                width: 60px !important;
+                height: 60px !important;
+                background-size: 170px 60px !important;
+                background-position: 2px 0 !important;
+                position: relative !important;
+                z-index: -1 !important;
+                cursor: pointer !important;
+                background-repeat: no-repeat !important;
+                display: block !important;
+            }
+            
+            #button_rules_menu {
+                background-image: url('assets/html/images/settings/Rules_Btn.webp') !important;
+            }
+            
+            #button_settings_menu {
+                background-image: url('assets/html/images/settings/Setting_Btn.webp') !important;
+            }
+            
+            .rules_lbl, .lang\:settings_rules_desk {
+                display: block !important;
+                font-size: 18px !important;
+                color: #fff !important;
+                text-align: center !important;
+                margin-top: 5px !important;
+                font-weight: 700 !important;
+            }
+            
+            .lang\:settings_general_desk {
+                display: block !important;
+                font-size: 18px !important;
+                color: #fff !important;
+                text-align: center !important;
+                margin-top: 5px !important;
+                font-weight: 700 !important;
+            }
+        </style>
+        
+        <!-- Предзагрузка шрифтов -->
+        <div class="font-preload" style="position: absolute; left: -9999px; visibility: hidden;">Impact Roboto-Bold Arial Rounded MT Regular Myriad Pro Bold Condensed rockwell-regular LEMONMILK-Bold</div>
+        
+        <!-- JavaScript для принудительного применения шрифтов -->
+        <script>
+            function applyOriginalFonts() {
+                console.log('🎨 Применяем оригинальные шрифты...');
+                
+                // Функция для применения шрифта к элементу
+                function applyFont(element, fontFamily, fontWeight = 'bold') {
+                    if (element) {
+                        element.style.fontFamily = fontFamily + ' !important';
+                        element.style.fontWeight = fontWeight + ' !important';
+                        element.style.fontStretch = 'condensed !important';
+                    }
+                }
+                
+                // Применяем шрифты к элементам с текстом BET
+                document.querySelectorAll('*').forEach(el => {
+                    if (el.textContent && el.textContent.includes('BET')) {
+                        applyFont(el, 'Impact, Arial Black, Arial', '900');
+                    }
+                });
+                
+                // Применяем шрифты к элементам с текстом AUTO CASH
+                document.querySelectorAll('*').forEach(el => {
+                    if (el.textContent && el.textContent.includes('AUTO CASH')) {
+                        applyFont(el, 'Impact, Arial Black, Arial', 'bold');
+                    }
+                });
+                
+                // Применяем шрифты к элементам с текстом BET VALUE
+                document.querySelectorAll('*').forEach(el => {
+                    if (el.textContent && el.textContent.includes('BET VALUE')) {
+                        applyFont(el, 'Impact, Arial Black, Arial', '900');
+                    }
+                });
+                
+                // Применяем шрифты к элементам с текстом BALANCE
+                document.querySelectorAll('*').forEach(el => {
+                    if (el.textContent && el.textContent.includes('BALANCE')) {
+                        applyFont(el, 'Impact, Arial Black, Arial', '900');
+                    }
+                });
+                
+                // Применяем шрифты к элементам с множителями (X)
+                document.querySelectorAll('*').forEach(el => {
+                    if (el.textContent && el.textContent.includes('X') && el.textContent.match(/\d+\.\d+X/)) {
+                        applyFont(el, 'Impact, Arial Black, Arial', 'bold');
+                    }
+                });
+                
+                // Применяем шрифты к элементам с числовыми значениями
+                document.querySelectorAll('*').forEach(el => {
+                    if (el.textContent && el.textContent.match(/\d+\.\d+/)) {
+                        applyFont(el, 'Impact, Arial Black, Arial', 'bold');
+                    }
+                });
+                
+                console.log('✅ Оригинальные шрифты применены');
+            }
+            
+            // Применяем шрифты сразу и через интервалы
+            setTimeout(applyOriginalFonts, 1000);
+            setTimeout(applyOriginalFonts, 3000);
+            setTimeout(applyOriginalFonts, 5000);
+            
+            // Применяем шрифты при изменении DOM
+            const observer = new MutationObserver(applyOriginalFonts);
+            observer.observe(document.body, { childList: true, subtree: true });
+        </script>
+        
         <!-- ПРИНУДИТЕЛЬНЫЙ CSS БЛОКЕР -->
         <style>
             /* ПРИНУДИТЕЛЬНЫЙ CSS БЛОКЕР */

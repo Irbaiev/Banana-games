@@ -1,0 +1,152 @@
+{
+  "version": 2,
+  "name": "banana-bonanza-game",
+  "builds": [
+    {
+      "src": "casino_guru_complete/mock_server_flask.py",
+      "use": "@vercel/python"
+    },
+    {
+      "src": "casino_guru_complete/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "/casino_guru_complete/mock_server_flask.py"
+    },
+    {
+      "src": "/token",
+      "dest": "/casino_guru_complete/mock_server_flask.py"
+    },
+    {
+      "src": "/frontendService/(.*)",
+      "dest": "/casino_guru_complete/mock_server_flask.py"
+    },
+    {
+      "src": "/staging.playzia.com/(.*)",
+      "dest": "/casino_guru_complete/mock_server_flask.py"
+    },
+    {
+      "src": "/gs2.playzia.com/(.*)",
+      "dest": "/casino_guru_complete/mock_server_flask.py"
+    },
+    {
+      "src": "/api.playzia.staging.hizi-service.com/(.*)",
+      "dest": "/casino_guru_complete/mock_server_flask.py"
+    },
+    {
+      "src": "/",
+      "dest": "/casino_guru_complete/staging.playzia.com/games/playzia-bananabonanza/index.html"
+    },
+    {
+      "src": "/game",
+      "dest": "/casino_guru_complete/staging.playzia.com/games/playzia-bananabonanza/index.html"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/casino_guru_complete/staging.playzia.com/games/playzia-bananabonanza/assets/$1"
+    },
+    {
+      "src": "/static/(.*)",
+      "dest": "/casino_guru_complete/static.casino.guru/res/$1"
+    },
+    {
+      "src": "/fonts/(.*)",
+      "dest": "/casino_guru_complete/fonts.gstatic.com/s/notosans/v6/$1"
+    },
+    {
+      "src": "/bootstrap/(.*)",
+      "dest": "/casino_guru_complete/maxcdn.bootstrapcdn.com/bootstrap/3.3.7/$1"
+    },
+    {
+      "src": "/common/(.*)",
+      "dest": "/casino_guru_complete/staging.playzia.com/games/common/$1"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/casino_guru_complete/staging.playzia.com/games/playzia-bananabonanza/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "SAMEORIGIN"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        },
+        {
+          "key": "Access-Control-Allow-Methods",
+          "value": "GET, POST, PUT, DELETE, OPTIONS"
+        },
+        {
+          "key": "Access-Control-Allow-Headers",
+          "value": "Content-Type, Authorization"
+        }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(woff|woff2|ttf|eot))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        },
+        {
+          "key": "Access-Control-Allow-Origin",
+          "value": "*"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(webp|png|jpg|jpeg|gif|svg))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(js|css))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=86400"
+        }
+      ]
+    }
+  ],
+  "functions": {
+    "./mock_server_flask.py": {
+      "runtime": "python3.9"
+    }
+  },
+  "env": {
+    "NODE_ENV": "production",
+    "VERCEL": "1"
+  }
+}
