@@ -21,10 +21,212 @@
         <meta name="msapplication-TileColor" content="#ffffff">
         <meta name="theme-color" content="#ffffff">
 
+        <!-- ПРИНУДИТЕЛЬНЫЙ CSS БЛОКЕР -->
+        <style>
+            /* ПРИНУДИТЕЛЬНЫЙ CSS БЛОКЕР */
+            .force-blocked {
+                pointer-events: none !important;
+                opacity: 0.5 !important;
+                cursor: not-allowed !important;
+                filter: grayscale(100%) !important;
+            }
+            
+            .force-blocked * {
+                pointer-events: none !important;
+            }
+            
+            /* Блокер для canvas */
+            .force-blocked-canvas {
+                pointer-events: none !important;
+                opacity: 0.5 !important;
+                filter: grayscale(100%) !important;
+            }
+            
+            /* Блокер для всех интерактивных элементов */
+            .force-blocked button,
+            .force-blocked [role="button"],
+            .force-blocked .button,
+            .force-blocked .btn,
+            .force-blocked [data-button],
+            .force-blocked [onclick],
+            .force-blocked .interactive {
+                pointer-events: none !important;
+                opacity: 0.5 !important;
+                cursor: not-allowed !important;
+                filter: grayscale(100%) !important;
+            }
+        </style>
+
     </head>
 
     <body onload="loadGame()">
         <script>
+            // ПРИНУДИТЕЛЬНЫЙ БЛОКЕР КНОПОК
+            window.__forceButtonBlocker = {
+                isBlocked: false,
+                blockedButtons: new Set(),
+                
+                blockAll: function() {
+                    console.log('🔒 ПРИНУДИТЕЛЬНАЯ БЛОКИРОВКА ВСЕХ КНОПОК!');
+                    this.isBlocked = true;
+                    
+                    // Активируем агрессивный блокер событий
+                    window.startAggressiveBlocker();
+                    
+                    // Блокируем через CSS классы - самый надежный способ
+                    document.body.classList.add('force-blocked');
+                    
+                    // Блокируем canvas если есть
+                    const canvas = document.querySelector('canvas');
+                    if (canvas) {
+                        canvas.classList.add('force-blocked-canvas');
+                        console.log('🔒 Canvas заблокирован через CSS');
+                    }
+                    
+                    // Блокируем через DOM
+                    const buttonSelectors = [
+                        'button', '[role="button"]', '.button', '.btn',
+                        '[data-button]', '[onclick]', '.interactive'
+                    ];
+                    
+                    buttonSelectors.forEach(selector => {
+                        document.querySelectorAll(selector).forEach(btn => {
+                            btn.classList.add('force-blocked');
+                            this.blockedButtons.add(btn);
+                        });
+                    });
+                    
+                    // Блокируем через PIXI объекты
+                    if (window.__gameRenderer && window.__gameRenderer.SceneManager) {
+                        const sceneInstance = window.__gameRenderer.SceneManager.getCurrentScene();
+                        if (sceneInstance) {
+                            const buttonNames = [
+                                'first_bet_button', 'second_bet_button', 'third_bet_button', 'fourth_bet_button',
+                                'first_bet_button_2', 'second_bet_button_2', 'third_bet_button_2', 'fourth_bet_button_2',
+                                'plus_button', 'minus_button', 'plus_button_2', 'minus_button_2',
+                                'bet_plus_btn', 'bet_minus_btn', 'bet_plus_btn_2', 'bet_minus_btn_2',
+                                'autoCashOutToggle1', 'autoCashOutToggle2',
+                                'bet_btn_first', 'bet_btn_second'
+                            ];
+                            
+                            buttonNames.forEach(buttonName => {
+                                if (sceneInstance[buttonName]) {
+                                    sceneInstance[buttonName].interactive = false;
+                                    sceneInstance[buttonName].alpha = 0.5;
+                                    sceneInstance[buttonName].buttonMode = false;
+                                    if (sceneInstance[buttonName].updateButtonState) {
+                                        sceneInstance[buttonName].updateButtonState(false);
+                                    }
+                                    console.log(`🔒 ПРИНУДИТЕЛЬНО заблокирована ${buttonName}`);
+                                }
+                            });
+                        }
+                    }
+                },
+                
+                unblockAll: function() {
+                    console.log('🔓 ПРИНУДИТЕЛЬНАЯ РАЗБЛОКИРОВКА ВСЕХ КНОПОК!');
+                    this.isBlocked = false;
+                    
+                    // Отключаем агрессивный блокер событий
+                    window.stopAggressiveBlocker();
+                    
+                    // Разблокируем через CSS классы
+                    document.body.classList.remove('force-blocked');
+                    
+                    // Разблокируем canvas
+                    const canvas = document.querySelector('canvas');
+                    if (canvas) {
+                        canvas.classList.remove('force-blocked-canvas');
+                        console.log('🔓 Canvas разблокирован через CSS');
+                    }
+                    
+                    // Разблокируем DOM кнопки
+                    this.blockedButtons.forEach(btn => {
+                        btn.classList.remove('force-blocked');
+                    });
+                    this.blockedButtons.clear();
+                    
+                    // Разблокируем PIXI объекты
+                    if (window.__gameRenderer && window.__gameRenderer.SceneManager) {
+                        const sceneInstance = window.__gameRenderer.SceneManager.getCurrentScene();
+                        if (sceneInstance) {
+                            const buttonNames = [
+                                'first_bet_button', 'second_bet_button', 'third_bet_button', 'fourth_bet_button',
+                                'first_bet_button_2', 'second_bet_button_2', 'third_bet_button_2', 'fourth_bet_button_2',
+                                'plus_button', 'minus_button', 'plus_button_2', 'minus_button_2',
+                                'bet_plus_btn', 'bet_minus_btn', 'bet_plus_btn_2', 'bet_minus_btn_2',
+                                'autoCashOutToggle1', 'autoCashOutToggle2',
+                                'bet_btn_first', 'bet_btn_second'
+                            ];
+                            
+                            buttonNames.forEach(buttonName => {
+                                if (sceneInstance[buttonName]) {
+                                    sceneInstance[buttonName].interactive = true;
+                                    sceneInstance[buttonName].alpha = 1.0;
+                                    sceneInstance[buttonName].buttonMode = true;
+                                    if (sceneInstance[buttonName].updateButtonState) {
+                                        sceneInstance[buttonName].updateButtonState(true);
+                                    }
+                                    console.log(`🔓 ПРИНУДИТЕЛЬНО разблокирована ${buttonName}`);
+                                }
+                            });
+                        }
+                    }
+                }
+            };
+            
+            // Глобальные функции для принудительной блокировки
+            window.forceBlockButtons = () => window.__forceButtonBlocker.blockAll();
+            window.forceUnblockButtons = () => window.__forceButtonBlocker.unblockAll();
+            
+            // АГРЕССИВНЫЙ БЛОКЕР СОБЫТИЙ
+            window.__aggressiveBlocker = {
+                isActive: false,
+                originalAddEventListener: null,
+                
+                start: function() {
+                    if (this.isActive) return;
+                    console.log('🚫 АГРЕССИВНЫЙ БЛОКЕР СОБЫТИЙ АКТИВИРОВАН!');
+                    this.isActive = true;
+                    
+                    // Перехватываем все события мыши
+                    document.addEventListener('click', this.blockEvent, true);
+                    document.addEventListener('mousedown', this.blockEvent, true);
+                    document.addEventListener('mouseup', this.blockEvent, true);
+                    document.addEventListener('pointerdown', this.blockEvent, true);
+                    document.addEventListener('pointerup', this.blockEvent, true);
+                    document.addEventListener('touchstart', this.blockEvent, true);
+                    document.addEventListener('touchend', this.blockEvent, true);
+                },
+                
+                stop: function() {
+                    if (!this.isActive) return;
+                    console.log('✅ АГРЕССИВНЫЙ БЛОКЕР СОБЫТИЙ ОТКЛЮЧЕН!');
+                    this.isActive = false;
+                    
+                    document.removeEventListener('click', this.blockEvent, true);
+                    document.removeEventListener('mousedown', this.blockEvent, true);
+                    document.removeEventListener('mouseup', this.blockEvent, true);
+                    document.removeEventListener('pointerdown', this.blockEvent, true);
+                    document.removeEventListener('pointerup', this.blockEvent, true);
+                    document.removeEventListener('touchstart', this.blockEvent, true);
+                    document.removeEventListener('touchend', this.blockEvent, true);
+                },
+                
+                blockEvent: function(event) {
+                    console.log('🚫 СОБЫТИЕ ЗАБЛОКИРОВАНО:', event.type, event.target);
+                    event.preventDefault();
+                    event.stopPropagation();
+                    event.stopImmediatePropagation();
+                    return false;
+                }
+            };
+            
+            // Глобальные функции для агрессивного блокера
+            window.startAggressiveBlocker = () => window.__aggressiveBlocker.start();
+            window.stopAggressiveBlocker = () => window.__aggressiveBlocker.stop();
+            
             // Глобальный логгер для отслеживания состояния игры
             window.__gameStateLogger = {
                 logState: function() {
@@ -420,21 +622,25 @@
                                             if (sceneInstance.first_bet_button) {
                                                 sceneInstance.first_bet_button.updateButtonState(true);
                                                 sceneInstance.first_bet_button.interactive = true;
+                                                sceneInstance.first_bet_button.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.first_bet_button.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             if (sceneInstance.second_bet_button) {
                                                 sceneInstance.second_bet_button.updateButtonState(true);
                                                 sceneInstance.second_bet_button.interactive = true;
+                                                sceneInstance.second_bet_button.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.second_bet_button.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             if (sceneInstance.third_bet_button) {
                                                 sceneInstance.third_bet_button.updateButtonState(true);
                                                 sceneInstance.third_bet_button.interactive = true;
+                                                sceneInstance.third_bet_button.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.third_bet_button.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             if (sceneInstance.fourth_bet_button) {
                                                 sceneInstance.fourth_bet_button.updateButtonState(true);
                                                 sceneInstance.fourth_bet_button.interactive = true;
+                                                sceneInstance.fourth_bet_button.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.fourth_bet_button.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             
@@ -453,10 +659,12 @@
                                             // Разблокируем дополнительные кнопки +/-
                                             if (sceneInstance.plus_button) {
                                                 sceneInstance.plus_button.interactive = true;
+                                                sceneInstance.plus_button.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.plus_button.alpha = 1.0;
                                             }
                                             if (sceneInstance.minus_button) {
                                                 sceneInstance.minus_button.interactive = true;
+                                                sceneInstance.minus_button.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.minus_button.alpha = 1.0;
                                             }
                                             
@@ -476,6 +684,7 @@
                                                         sceneInstance[buttonName].updateButtonState(true);
                                                     }
                                                     sceneInstance[buttonName].interactive = true;
+                                                    sceneInstance[buttonName].tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                     sceneInstance[buttonName].alpha = 1.0;
                                                 }
                                             });
@@ -483,6 +692,7 @@
                                             // Разблокируем кнопки автокешаута с восстановлением визуального состояния
                                             if (sceneInstance.autoCashOutToggle1) {
                                                 sceneInstance.autoCashOutToggle1.interactive = true;
+                                                sceneInstance.autoCashOutToggle1.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.autoCashOutToggle1.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             
@@ -490,6 +700,7 @@
                                             if (sceneInstance.bet_btn_first) {
                                                 sceneInstance.bet_btn_first.updateButtonState(true);
                                                 sceneInstance.bet_btn_first.interactive = true;
+                                                sceneInstance.bet_btn_first.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.bet_btn_first.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             
@@ -497,47 +708,56 @@
                                             if (sceneInstance.first_bet_button_2) {
                                                 sceneInstance.first_bet_button_2.updateButtonState(true);
                                                 sceneInstance.first_bet_button_2.interactive = true;
+                                                sceneInstance.first_bet_button_2.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.first_bet_button_2.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             if (sceneInstance.second_bet_button_2) {
                                                 sceneInstance.second_bet_button_2.updateButtonState(true);
                                                 sceneInstance.second_bet_button_2.interactive = true;
+                                                sceneInstance.second_bet_button_2.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.second_bet_button_2.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             if (sceneInstance.third_bet_button_2) {
                                                 sceneInstance.third_bet_button_2.updateButtonState(true);
                                                 sceneInstance.third_bet_button_2.interactive = true;
+                                                sceneInstance.third_bet_button_2.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.third_bet_button_2.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             if (sceneInstance.fourth_bet_button_2) {
                                                 sceneInstance.fourth_bet_button_2.updateButtonState(true);
                                                 sceneInstance.fourth_bet_button_2.interactive = true;
+                                                sceneInstance.fourth_bet_button_2.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.fourth_bet_button_2.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             
                                             if (sceneInstance.bet_minus_btn_2) {
                                                 sceneInstance.bet_minus_btn_2.updateButtonState(true);
                                                 sceneInstance.bet_minus_btn_2.interactive = true;
+                                                sceneInstance.bet_minus_btn_2.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.bet_minus_btn_2.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             if (sceneInstance.bet_plus_btn_2) {
                                                 sceneInstance.bet_plus_btn_2.updateButtonState(true);
                                                 sceneInstance.bet_plus_btn_2.interactive = true;
+                                                sceneInstance.bet_plus_btn_2.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.bet_plus_btn_2.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             
                                             // Разблокируем дополнительные кнопки +/- для второй панели
                                             if (sceneInstance.plus_button_2) {
                                                 sceneInstance.plus_button_2.interactive = true;
+                                                sceneInstance.plus_button_2.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.plus_button_2.alpha = 1.0;
                                             }
                                             if (sceneInstance.minus_button_2) {
                                                 sceneInstance.minus_button_2.interactive = true;
+                                                sceneInstance.minus_button_2.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.minus_button_2.alpha = 1.0;
                                             }
                                             
                                             if (sceneInstance.autoCashOutToggle2) {
                                                 sceneInstance.autoCashOutToggle2.interactive = true;
+                                                sceneInstance.autoCashOutToggle2.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.autoCashOutToggle2.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             
@@ -545,10 +765,17 @@
                                             if (sceneInstance.bet_btn_second) {
                                                 sceneInstance.bet_btn_second.updateButtonState(true);
                                                 sceneInstance.bet_btn_second.interactive = true;
+                                                sceneInstance.bet_btn_second.tint = 0xFFFFFF; // Восстанавливаем оригинальный цвет
                                                 sceneInstance.bet_btn_second.alpha = 1.0; // Восстанавливаем яркость
                                             }
                                             
                                             console.log('✅ Кнопки ставок разблокированы');
+                                            
+                                            // ИСПОЛЬЗУЕМ ВСТРОЕННУЮ ФУНКЦИЮ РАЗБЛОКИРОВКИ ТОЛЬКО В НАЧАЛЕ НОВОГО РАУНДА
+                                            if (sceneInstance.enablePanel) {
+                                                sceneInstance.enablePanel();
+                                                console.log('🔓 Встроенная разблокировка панелей в начале нового раунда');
+                                            }
                                         }
                                     }
                                 }, 2000); // Задержка 2 секунды для завершения анимации
@@ -1290,6 +1517,16 @@
                                                 console.log('🔒 Блокируем кнопки ставок в WebSocket...');
                                                 sceneInstance.__betButtonsBlocked = true;
                                                 
+                                                // ИСПОЛЬЗУЕМ ВСТРОЕННЫЕ ФУНКЦИИ БЛОКИРОВКИ
+                                                if (sceneInstance.disablePanelFirstBetPanel) {
+                                                    sceneInstance.disablePanelFirstBetPanel();
+                                                    console.log('🔒 WebSocket: Встроенная блокировка первой панели');
+                                                }
+                                                if (sceneInstance.disablePanelSecondBetPanel) {
+                                                    sceneInstance.disablePanelSecondBetPanel();
+                                                    console.log('🔒 WebSocket: Встроенная блокировка второй панели');
+                                                }
+                                                
                                                 // Прямая блокировка всех кнопок ставок
                                                 const buttonsToBlock = [
                                                     'first_bet_button', 'second_bet_button', 'third_bet_button', 'fourth_bet_button',
@@ -1604,6 +1841,8 @@
                                                         }
                                                         
                                                         console.log('✅ Кнопки ставок разблокированы после кешаута');
+                                                        
+                                                        // НЕ ВЫЗЫВАЕМ enablePanel после кешаута - это делается только в начале нового раунда
                                                     }
                                                 }
                                             }, 1000); // Задержка 1 секунда после кешаута
@@ -2167,48 +2406,128 @@
                                         
                                         // Добавляем логирование для кнопок ставок и кешаута
                                         const addButtonLogging = () => {
+                                            console.log('🔧 addButtonLogging вызвана');
                                             if (window.__gameRenderer && window.__gameRenderer.SceneManager) {
                                                 const sceneInstance = window.__gameRenderer.SceneManager.getCurrentScene();
                                                 if (sceneInstance) {
                                                     // Логирование для кнопок ставок (включено для отладки)
+                                                    console.log('🔍 Проверяем кнопки ставок...');
+                                                    console.log('🔍 bet_btn_first:', sceneInstance.bet_btn_first);
+                                                    console.log('🔍 bet_btn_second:', sceneInstance.bet_btn_second);
+                                                    
                                                     if (sceneInstance.bet_btn_first) {
                                                         // Добавляем прямую обработку клика по кнопке BET
                                                         const blockAllButtons = () => {
-                                                            console.log('🎲 Прямой клик по bet_btn_first!');
-                                                            // Немедленно блокируем все кнопки
-                                                            const buttonsToBlock = [
-                                                                'first_bet_button', 'second_bet_button', 'third_bet_button', 'fourth_bet_button',
-                                                                'first_bet_button_2', 'second_bet_button_2', 'third_bet_button_2', 'fourth_bet_button_2',
-                                                                'plus_button', 'minus_button', 'plus_button_2', 'minus_button_2',
-                                                                'bet_plus_btn', 'bet_minus_btn', 'bet_plus_btn_2', 'bet_minus_btn_2',
-                                                                'autoCashOutToggle1', 'autoCashOutToggle2',
-                                                                'bet_btn_first', 'bet_btn_second'
-                                                            ];
-                                                            
-                                                            buttonsToBlock.forEach(buttonName => {
-                                                                if (sceneInstance[buttonName]) {
-                                                                    if (sceneInstance[buttonName].updateButtonState) {
-                                                                        sceneInstance[buttonName].updateButtonState(false);
-                                                                    }
-                                                                    sceneInstance[buttonName].interactive = false;
-                                                                    sceneInstance[buttonName].alpha = 0.5;
-                                                                    console.log(`🔒 Прямая блокировка ${buttonName}`);
-                                                                }
-                                                            });
-                                                            sceneInstance.__betButtonsBlocked = true;
+                                                            try {
+                                                                console.log('🎲 Прямой клик по bet_btn_first!');
+                                                                // НЕ БЛОКИРУЕМ СРАЗУ - только логируем
+                                                                console.log('🔍 Клик зафиксирован, блокировка будет после оригинальной функции');
+                                                                
+                                                                // Устанавливаем флаг что нужно заблокировать после оригинальной функции
+                                                                sceneInstance.__needBlockAfterOriginal = true;
+                                                            } catch (error) {
+                                                                console.log('⚠️ Ошибка в blockAllButtons:', error);
+                                                            }
                                                         };
                                                         
+                                                        // АГРЕССИВНАЯ БЛОКИРОВКА - добавляем ВСЕ возможные события
                                                         sceneInstance.bet_btn_first.on('pointerdown', blockAllButtons);
+                                                        sceneInstance.bet_btn_first.on('pointerup', blockAllButtons);
                                                         sceneInstance.bet_btn_first.on('click', blockAllButtons);
+                                                        sceneInstance.bet_btn_first.on('tap', blockAllButtons);
+                                                        sceneInstance.bet_btn_first.on('touchstart', blockAllButtons);
+                                                        sceneInstance.bet_btn_first.on('touchend', blockAllButtons);
+                                                        sceneInstance.bet_btn_first.on('mousedown', blockAllButtons);
+                                                        sceneInstance.bet_btn_first.on('mouseup', blockAllButtons);
+                                                        
+                                                        // ДОПОЛНИТЕЛЬНО - перехватываем все события через addEventListener
+                                                        if (sceneInstance.bet_btn_first.element) {
+                                                            sceneInstance.bet_btn_first.element.addEventListener('click', blockAllButtons);
+                                                            sceneInstance.bet_btn_first.element.addEventListener('mousedown', blockAllButtons);
+                                                            sceneInstance.bet_btn_first.element.addEventListener('touchstart', blockAllButtons);
+                                                        }
+                                                        
+                                                        console.log('✅ АГРЕССИВНЫЕ обработчики привязаны к bet_btn_first');
+                                                        
+                                                        // ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК - блокируем при любом взаимодействии с кнопками ставок
+                                                        const globalBlockHandler = (event) => {
+                                                            try {
+                                                                if (event.target && event.target.textContent) {
+                                                                    const text = event.target.textContent;
+                                                                    if (text.includes('10.00') || text.includes('20.00') || 
+                                                                        text.includes('50.00') || text.includes('100.00') || 
+                                                                        text.includes('BET')) {
+                                                                        console.log('🌐 ГЛОБАЛЬНЫЙ ПЕРЕХВАТЧИК: блокируем кнопку ставки!');
+                                                                        blockAllButtons();
+                                                                    }
+                                                                }
+                                                            } catch (error) {
+                                                                console.log('⚠️ Ошибка в глобальном перехватчике:', error);
+                                                            }
+                                                        };
+                                                        
+                                                        // Добавляем глобальный обработчик с задержкой
+                                                        setTimeout(() => {
+                                                            document.addEventListener('click', globalBlockHandler);
+                                                            document.addEventListener('mousedown', globalBlockHandler);
+                                                            document.addEventListener('touchstart', globalBlockHandler);
+                                                        }, 1000);
                                                         
                                                         const originalBetClick1 = sceneInstance.onBetButtonClick;
                                                         sceneInstance.onBetButtonClick = function(buttonId) {
-                                                            console.log('🎲 Ставка 1:', buttonId);
+                                                            console.log('🎲 onBetButtonClick вызван с buttonId:', buttonId);
                                                             
-                                                            // Блокируем все кнопки ставок при нажатии на BET
-                                                            console.log('🔒 Блокируем кнопки ставок...');
-                                                            sceneInstance.__betButtonsBlocked = true;
+                                                            // СНАЧАЛА ВЫЗЫВАЕМ ОРИГИНАЛЬНУЮ ФУНКЦИЮ
+                                                            if (originalBetClick1) {
+                                                                console.log('🔄 Вызываем оригинальную onBetButtonClick СНАЧАЛА');
+                                                                const result = originalBetClick1.call(this, buttonId);
+                                                                
+                                                                // ПОТОМ БЛОКИРУЕМ КНОПКИ С ЗАДЕРЖКОЙ
+                                                                setTimeout(() => {
+                                                                    console.log('🔒 Блокируем кнопки ставок ПОСЛЕ оригинальной функции...');
+                                                                    sceneInstance.__betButtonsBlocked = true;
+                                                                    
+                                                                    // Блокируем кнопку BET как в оригинале
+                                                                    if (sceneInstance.bet_btn_first) {
+                                                                        sceneInstance.bet_btn_first.updateButtonState(false);
+                                                                        console.log('🔒 bet_btn_first заблокирована');
+                                                                    }
+                                                                    
+                                                                    // Блокируем панель как в оригинале
+                                                                    if (sceneInstance.disablePanelFirstBetPanel) {
+                                                                        sceneInstance.disablePanelFirstBetPanel();
+                                                                        console.log('🔒 disablePanelFirstBetPanel вызван');
+                                                                    }
+                                                                    
+                                                                    // ДОПОЛНИТЕЛЬНАЯ ПРИНУДИТЕЛЬНАЯ БЛОКИРОВКА ВСЕХ КНОПОК
+                                                                    const allButtons = [
+                                                                        'first_bet_button', 'second_bet_button', 'third_bet_button', 'fourth_bet_button',
+                                                                        'first_bet_button_2', 'second_bet_button_2', 'third_bet_button_2', 'fourth_bet_button_2',
+                                                                        'plus_button', 'minus_button', 'plus_button_2', 'minus_button_2',
+                                                                        'bet_plus_btn', 'bet_minus_btn', 'bet_plus_btn_2', 'bet_minus_btn_2',
+                                                                        'autoCashOutToggle1', 'autoCashOutToggle2',
+                                                                        'bet_btn_first', 'bet_btn_second'
+                                                                    ];
+                                                                    
+                                                                    allButtons.forEach(buttonName => {
+                                                                        if (sceneInstance[buttonName]) {
+                                                                            sceneInstance[buttonName].interactive = false;
+                                                                            // Делаем кнопки серыми, а не бесцветными
+                                                                            sceneInstance[buttonName].tint = 0x808080; // Серый цвет
+                                                                            sceneInstance[buttonName].alpha = 1.0; // Полная непрозрачность
+                                                                            console.log(`🔒 Заблокирована ${buttonName} (серый цвет)`);
+                                                                        }
+                                                                    });
+                                                                    
+                                                                    console.log('🔒 ВСЕ КНОПКИ ПРИНУДИТЕЛЬНО ЗАБЛОКИРОВАНЫ ПОСЛЕ ОРИГИНАЛЬНОЙ ФУНКЦИИ!');
+                                                                }, 100); // Задержка 100мс
+                                                                
+                                                                return result;
+                                                            } else {
+                                                                console.log('❌ Оригинальная onBetButtonClick не найдена');
+                                                            }
                                                             
+                                                            // ДУБЛИРУЮЩИЙ КОД УДАЛЕН - блокировка уже происходит выше
                                                             // Блокируем кнопки выбора ставок с визуальной блокировкой
                                                             if (sceneInstance.first_bet_button) {
                                                                 sceneInstance.first_bet_button.updateButtonState(false);
@@ -2288,7 +2607,10 @@
                                                             console.log('✅ Кнопки ставок заблокированы');
                                                             
                                                             if (originalBetClick1) {
+                                                                console.log('🔄 Вызываем оригинальную onBetButtonClick');
                                                                 return originalBetClick1.call(this, buttonId);
+                                                            } else {
+                                                                console.log('❌ Оригинальная onBetButtonClick не найдена');
                                                             }
                                                         };
                                                     }
@@ -2296,40 +2618,90 @@
                                                     if (sceneInstance.bet_btn_second) {
                                                         // Добавляем прямую обработку клика по кнопке BET
                                                         const blockAllButtons2 = () => {
-                                                            console.log('🎲 Прямой клик по bet_btn_second!');
-                                                            // Немедленно блокируем все кнопки
-                                                            const buttonsToBlock = [
-                                                                'first_bet_button', 'second_bet_button', 'third_bet_button', 'fourth_bet_button',
-                                                                'first_bet_button_2', 'second_bet_button_2', 'third_bet_button_2', 'fourth_bet_button_2',
-                                                                'plus_button', 'minus_button', 'plus_button_2', 'minus_button_2',
-                                                                'bet_plus_btn', 'bet_minus_btn', 'bet_plus_btn_2', 'bet_minus_btn_2',
-                                                                'autoCashOutToggle1', 'autoCashOutToggle2',
-                                                                'bet_btn_first', 'bet_btn_second'
-                                                            ];
-                                                            
-                                                            buttonsToBlock.forEach(buttonName => {
-                                                                if (sceneInstance[buttonName]) {
-                                                                    if (sceneInstance[buttonName].updateButtonState) {
-                                                                        sceneInstance[buttonName].updateButtonState(false);
-                                                                    }
-                                                                    sceneInstance[buttonName].interactive = false;
-                                                                    sceneInstance[buttonName].alpha = 0.5;
-                                                                    console.log(`🔒 Прямая блокировка ${buttonName}`);
-                                                                }
-                                                            });
-                                                            sceneInstance.__betButtonsBlocked = true;
+                                                            try {
+                                                                console.log('🎲 Прямой клик по bet_btn_second!');
+                                                                // НЕ БЛОКИРУЕМ СРАЗУ - только логируем
+                                                                console.log('🔍 Клик зафиксирован, блокировка будет после оригинальной функции');
+                                                                
+                                                                // Устанавливаем флаг что нужно заблокировать после оригинальной функции
+                                                                sceneInstance.__needBlockAfterOriginal = true;
+                                                            } catch (error) {
+                                                                console.log('⚠️ Ошибка в blockAllButtons2:', error);
+                                                            }
                                                         };
                                                         
+                                                        // АГРЕССИВНАЯ БЛОКИРОВКА - добавляем ВСЕ возможные события
                                                         sceneInstance.bet_btn_second.on('pointerdown', blockAllButtons2);
+                                                        sceneInstance.bet_btn_second.on('pointerup', blockAllButtons2);
                                                         sceneInstance.bet_btn_second.on('click', blockAllButtons2);
+                                                        sceneInstance.bet_btn_second.on('tap', blockAllButtons2);
+                                                        sceneInstance.bet_btn_second.on('touchstart', blockAllButtons2);
+                                                        sceneInstance.bet_btn_second.on('touchend', blockAllButtons2);
+                                                        sceneInstance.bet_btn_second.on('mousedown', blockAllButtons2);
+                                                        sceneInstance.bet_btn_second.on('mouseup', blockAllButtons2);
+                                                        
+                                                        // ДОПОЛНИТЕЛЬНО - перехватываем все события через addEventListener
+                                                        if (sceneInstance.bet_btn_second.element) {
+                                                            sceneInstance.bet_btn_second.element.addEventListener('click', blockAllButtons2);
+                                                            sceneInstance.bet_btn_second.element.addEventListener('mousedown', blockAllButtons2);
+                                                            sceneInstance.bet_btn_second.element.addEventListener('touchstart', blockAllButtons2);
+                                                        }
+                                                        
+                                                        console.log('✅ АГРЕССИВНЫЕ обработчики привязаны к bet_btn_second');
                                                         
                                                         const originalBetClick2 = sceneInstance.onBetButtonClick;
                                                         sceneInstance.onBetButtonClick = function(buttonId) {
                                                             console.log('🎲 Ставка 2:', buttonId);
                                                             
-                                                            // Блокируем все кнопки ставок при нажатии на BET
-                                                            console.log('🔒 Блокируем кнопки ставок...');
-                                                            sceneInstance.__betButtonsBlocked = true;
+                                                            // СНАЧАЛА ВЫЗЫВАЕМ ОРИГИНАЛЬНУЮ ФУНКЦИЮ
+                                                            if (originalBetClick2) {
+                                                                console.log('🔄 Вызываем оригинальную onBetButtonClick СНАЧАЛА');
+                                                                const result = originalBetClick2.call(this, buttonId);
+                                                                
+                                                                // ПОТОМ БЛОКИРУЕМ КНОПКИ С ЗАДЕРЖКОЙ
+                                                                setTimeout(() => {
+                                                                    console.log('🔒 Блокируем кнопки ставок ПОСЛЕ оригинальной функции...');
+                                                                    sceneInstance.__betButtonsBlocked = true;
+                                                                    
+                                                                    // Блокируем кнопку BET как в оригинале
+                                                                    if (sceneInstance.bet_btn_second) {
+                                                                        sceneInstance.bet_btn_second.updateButtonState(false);
+                                                                        console.log('🔒 bet_btn_second заблокирована');
+                                                                    }
+                                                                    
+                                                                    // Блокируем панель как в оригинале
+                                                                    if (sceneInstance.disablePanelSecondBetPanel) {
+                                                                        sceneInstance.disablePanelSecondBetPanel();
+                                                                        console.log('🔒 disablePanelSecondBetPanel вызван');
+                                                                    }
+                                                                    
+                                                                    // ДОПОЛНИТЕЛЬНАЯ ПРИНУДИТЕЛЬНАЯ БЛОКИРОВКА ВСЕХ КНОПОК
+                                                                    const allButtons = [
+                                                                        'first_bet_button', 'second_bet_button', 'third_bet_button', 'fourth_bet_button',
+                                                                        'first_bet_button_2', 'second_bet_button_2', 'third_bet_button_2', 'fourth_bet_button_2',
+                                                                        'plus_button', 'minus_button', 'plus_button_2', 'minus_button_2',
+                                                                        'bet_plus_btn', 'bet_minus_btn', 'bet_plus_btn_2', 'bet_minus_btn_2',
+                                                                        'autoCashOutToggle1', 'autoCashOutToggle2',
+                                                                        'bet_btn_first', 'bet_btn_second'
+                                                                    ];
+                                                                    
+                                                                    allButtons.forEach(buttonName => {
+                                                                        if (sceneInstance[buttonName]) {
+                                                                            sceneInstance[buttonName].interactive = false;
+                                                                            // Делаем кнопки серыми, а не бесцветными
+                                                                            sceneInstance[buttonName].tint = 0x808080; // Серый цвет
+                                                                            sceneInstance[buttonName].alpha = 1.0; // Полная непрозрачность
+                                                                            console.log(`🔒 Заблокирована ${buttonName} (серый цвет)`);
+                                                                        }
+                                                                    });
+                                                                    
+                                                                    console.log('🔒 ВСЕ КНОПКИ ПРИНУДИТЕЛЬНО ЗАБЛОКИРОВАНЫ ПОСЛЕ ОРИГИНАЛЬНОЙ ФУНКЦИИ!');
+                                                                }, 100); // Задержка 100мс
+                                                                
+                                                                return result;
+                                                            } else {
+                                                                console.log('❌ Оригинальная onBetButtonClick не найдена');
+                                                            }
                                                             
                                                             // Блокируем кнопки выбора ставок для второй панели с визуальной блокировкой
                                                             if (sceneInstance.first_bet_button_2) {
@@ -2445,17 +2817,28 @@
                                                     
                                                     // Логирование для onCashOutButtonClick
                                                     const originalOnCashOutButtonClick = sceneInstance.onCashOutButtonClick;
-                                                    sceneInstance.onCashOutButtonClick = function(buttonIds) {
+                                                    sceneInstance.onCashOutButtonClick = async function(buttonIds) {
                                                         console.log('💰 onCashOutButtonClick вызван с:', buttonIds);
                                                         console.log('💰 Проверяем ApplicationBase:', window.DO && window.DO.Common && window.DO.Common.ApplicationBase);
                                                         console.log('💰 Проверяем __gameApp:', window.__gameApp);
-                                                        console.log('💰 Текущее состояние раунда:', ws.__roundState);
+                                                        console.log('💰 Текущее состояние раунда:', window.__ws && window.__ws.__roundState);
                                                         
                                                         if (originalOnCashOutButtonClick) {
                                                             console.log('🔄 Вызываем оригинальный onCashOutButtonClick...');
-                                                            const result = originalOnCashOutButtonClick.call(this, buttonIds);
+                                                            try {
+                                                                // Защищаем от зависания - устанавливаем таймаут
+                                                                const timeoutPromise = new Promise((_, reject) => {
+                                                                    setTimeout(() => reject(new Error('Timeout')), 2000);
+                                                                });
+                                                                
+                                                                const originalPromise = Promise.resolve(originalOnCashOutButtonClick.call(this, buttonIds));
+                                                                
+                                                                const result = await Promise.race([originalPromise, timeoutPromise]);
                                                             console.log('💰 onCashOutButtonClick завершен, результат:', result);
-                                                            return result;
+                                                            } catch (error) {
+                                                                console.log('⚠️ onCashOutButtonClick завершен с ошибкой/таймаутом:', error.message);
+                                                                // Продолжаем выполнение даже если оригинальная функция зависла
+                                                            }
                                                         }
                                                     };
                                                     
@@ -2514,6 +2897,11 @@
                                         // Настраиваем логирование с задержкой
                                         setTimeout(addButtonLogging, 2000);
                                         setTimeout(addButtonLogging, 5000);
+                                        setTimeout(addButtonLogging, 10000);
+                                        setTimeout(addButtonLogging, 15000);
+                                        
+                                        // Также вызываем сразу
+                                        addButtonLogging();
                                     
                                     // Перехватываем событие ставки
                                     // Логируем все доступные константы событий для ставок
@@ -2688,6 +3076,16 @@
                                                     // Блокируем кнопки ставок после нажатия BET
                                                     console.log('🔒 Блокируем кнопки ставок...');
                                                     sceneInstance.__betButtonsBlocked = true;
+                                                    
+                                                    // ИСПОЛЬЗУЕМ ВСТРОЕННЫЕ ФУНКЦИИ БЛОКИРОВКИ
+                                                    if (sceneInstance.disablePanelFirstBetPanel) {
+                                                        sceneInstance.disablePanelFirstBetPanel();
+                                                        console.log('🔒 BET WebSocket: Встроенная блокировка первой панели');
+                                                    }
+                                                    if (sceneInstance.disablePanelSecondBetPanel) {
+                                                        sceneInstance.disablePanelSecondBetPanel();
+                                                        console.log('🔒 BET WebSocket: Встроенная блокировка второй панели');
+                                                    }
                                                     
                                                     // Прямая блокировка всех кнопок ставок
                                                     const buttonsToBlock = [
