@@ -300,20 +300,20 @@ function logSuccess(message, data = null) {
     }
 }
 
-// Логирование информации
+// Логирование информации (отключено для уменьшения засорения консоли)
 function logInfo(message, data = null) {
-    console.log(`${INFO_PREFIX} ${message}`);
-    if (data) {
-        console.log(`${INFO_PREFIX} Data:`, data);
-    }
+    // console.log(`${INFO_PREFIX} ${message}`);
+    // if (data) {
+    //     console.log(`${INFO_PREFIX} Data:`, data);
+    // }
 }
 
-// Логирование этапов загрузки
+// Логирование этапов загрузки (отключено для уменьшения засорения консоли)
 function logGameLoadStage(stage, message, data = null) {
-    console.log(`${LOG_PREFIX} [STAGE ${stage}] ${message}`);
-    if (data) {
-        console.log(`${LOG_PREFIX} [STAGE ${stage}] Data:`, data);
-    }
+    // console.log(`${LOG_PREFIX} [STAGE ${stage}] ${message}`);
+    // if (data) {
+    //     console.log(`${LOG_PREFIX} [STAGE ${stage}] Data:`, data);
+    // }
 }
 
 // Обработка API запросов
