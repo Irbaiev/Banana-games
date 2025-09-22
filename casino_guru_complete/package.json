@@ -1,20 +1,18 @@
 {
   "name": "banana-bonanza-game",
   "version": "1.0.0",
-  "description": "Banana Bonanza Crash Game - Offline Version with Flask API",
-  "main": "staging.playzia.com/games/playzia-bananabonanza/index.html",
+  "description": "Banana Bonanza Crash Game - Offline Version",
+  "main": "index.html",
   "scripts": {
     "start": "vercel dev",
     "build": "echo 'No build step required for static files'",
-    "deploy": "vercel --prod",
-    "dev": "python mock_server_flask.py"
+    "deploy": "vercel --prod"
   },
   "keywords": [
     "crash-game",
     "banana-bonanza",
     "casino",
     "offline-game",
-    "flask-api",
     "vercel"
   ],
   "author": "Game Developer",

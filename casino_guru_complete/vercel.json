@@ -3,70 +3,18 @@
   "name": "banana-bonanza-game",
   "builds": [
     {
-      "src": "mock_server_flask.py",
-      "use": "@vercel/python"
-    },
-    {
       "src": "**/*",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
-      "src": "/api/(.*)",
-      "dest": "/mock_server_flask.py"
-    },
-    {
-      "src": "/token",
-      "dest": "/mock_server_flask.py"
-    },
-    {
-      "src": "/frontendService/(.*)",
-      "dest": "/mock_server_flask.py"
-    },
-    {
-      "src": "/staging.playzia.com/(.*)",
-      "dest": "/mock_server_flask.py"
-    },
-    {
-      "src": "/gs2.playzia.com/(.*)",
-      "dest": "/mock_server_flask.py"
-    },
-    {
-      "src": "/api.playzia.staging.hizi-service.com/(.*)",
-      "dest": "/mock_server_flask.py"
-    },
-    {
       "src": "/",
-      "dest": "/staging.playzia.com/games/playzia-bananabonanza/index.html"
-    },
-    {
-      "src": "/game",
-      "dest": "/staging.playzia.com/games/playzia-bananabonanza/index.html"
-    },
-    {
-      "src": "/assets/(.*)",
-      "dest": "/staging.playzia.com/games/playzia-bananabonanza/assets/$1"
-    },
-    {
-      "src": "/static/(.*)",
-      "dest": "/static.casino.guru/res/$1"
-    },
-    {
-      "src": "/fonts/(.*)",
-      "dest": "/fonts.gstatic.com/s/notosans/v6/$1"
-    },
-    {
-      "src": "/bootstrap/(.*)",
-      "dest": "/maxcdn.bootstrapcdn.com/bootstrap/3.3.7/$1"
-    },
-    {
-      "src": "/common/(.*)",
-      "dest": "/staging.playzia.com/games/common/$1"
+      "dest": "/index.html"
     },
     {
       "src": "/(.*)",
-      "dest": "/staging.playzia.com/games/playzia-bananabonanza/$1"
+      "dest": "/$1"
     }
   ],
   "headers": [
@@ -88,23 +36,6 @@
         {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, POST, PUT, DELETE, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
-        }
-      ]
-    },
-    {
-      "source": "/assets/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
         }
       ]
     },
@@ -140,13 +71,7 @@
       ]
     }
   ],
-  "functions": {
-    "mock_server_flask.py": {
-      "runtime": "python3.9"
-    }
-  },
   "env": {
-    "NODE_ENV": "production",
-    "VERCEL": "1"
+    "NODE_ENV": "production"
   }
 }
