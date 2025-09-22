@@ -1,0 +1,4 @@
+# Vercel redirects
+/ /index.html 200
+/game /staging.playzia.com/games/playzia-bananabonanza/index.html 200
+/test /test.html 200

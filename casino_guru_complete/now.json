@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "name": "banana-bonanza-game",
+  "builds": [
+    {
+      "src": "**/*",
+      "use": "@vercel/static"
+    }
+  ]
+}
