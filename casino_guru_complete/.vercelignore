@@ -1,0 +1,46 @@
+# Игнорируем ненужные файлы для Vercel
+node_modules/
+.env
+.env.local
+.env.production
+.env.development
+*.log
+.DS_Store
+Thumbs.db
+
+# Временные файлы
+*.tmp
+*.temp
+__pycache__/
+*.pyc
+*.pyo
+
+# Документация
+README.md
+*.md
+
+# HAR файлы (слишком большие)
+*.har
+
+# Архивы
+*.zip
+*.rar
+*.7z
+
+# IDE файлы
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Python виртуальное окружение
+env/
+venv/
+.venv/
+
+# Локальные настройки
+.vercel/

@@ -542,16 +542,23 @@ def websocket_redirect():
         'status': 404
     }), 404
 
+@app.route('/', methods=['GET'])
+def serve_game():
+    """Обслуживание главной страницы игры"""
+    game_path = Path('staging.playzia.com/games/playzia-bananabonanza/index.html')
+    if game_path.exists():
+        return send_file(str(game_path))
+    
+    return jsonify({
+        'error': 'Game file not found',
+        'status': 404
+    }), 404
+
 # ==================== СТАТИЧЕСКИЕ ФАЙЛЫ ====================
 
-@app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
 def serve_static_files(path):
     """Обслуживание статических файлов"""
-    if not path:
-        path = 'casino.guru/gameDetailIos.html'
-    
-    # НЕ убираем префиксы доменов! Файлы хранятся с полными путями
     # Проверяем существование файла с оригинальным путем
     file_path = Path(path)
     if file_path.exists() and file_path.is_file():
@@ -561,8 +568,7 @@ def serve_static_files(path):
     possible_paths = [
         path,
         f'./{path}',
-        f'../{path}',
-        f'casino_guru_complete/{path}'
+        f'../{path}'
     ]
     
     for possible_path in possible_paths:
